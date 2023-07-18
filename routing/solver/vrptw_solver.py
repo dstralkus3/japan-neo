@@ -1,6 +1,3 @@
-###########
-# IMPORTS #
-###########
 
 from pyvrp.stop import MaxRuntime
 from pyvrp import Model

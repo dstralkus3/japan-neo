@@ -1,9 +1,5 @@
 """Vehicles Routing Problem (VRP) with Time Windows. Code built upon Google OR-Tools VRPTW Program. """
 
-###########
-# IMPORTS #
-###########
-
 import numpy as np
 import math
 import copy
