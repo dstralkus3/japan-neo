@@ -1,8 +1,8 @@
 import json
 
-# Prune the grid - Hard coded for Japan
+# Prune the grid - Hard coded for Japan -- Eliminates tiles sequentially based off lat long logic
 retained = []
-with open('boundingbox.json') as f:
+with open('geometry/boundingbox.json') as f:
     f_data = json.load(f)
     for elt in f_data['features']:
         if elt['geometry']['coordinates'][0][0][0] < 132.1 or elt['geometry']['coordinates'][0][0][1] > 32.2:
@@ -25,5 +25,5 @@ with open('boundingbox.json') as f:
 data = {"type":"FeatureCollection",
     'features': retained
 }
-with open('generated.json', 'w') as f:
+with open('geometry/geometries/rough_generated.json', 'w') as f:
     json.dump(data, f)
