@@ -10,14 +10,14 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from solver import vrptw_instance
-from solver import vrptw_solver
 from pyvis.network import Network
 import networkx as nx
 import numpy as np
 import time
 import random
 import copy
+from solver import vrptw_instance
+from solver import vrptw_solver
 
 ###################################
 # SUPPORT FOR GRAPH VISUALIZATION #

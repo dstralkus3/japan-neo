@@ -7,3 +7,10 @@ The routing folder contains logic to route vehicles
 
 Dependencies:
 - pyvrp
+- matplotlib
+- mpl_toolkits
+- numpy
+- reverse_geocode
+
+
+
