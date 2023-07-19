@@ -160,17 +160,12 @@ def organize_by_prefecture(prefecture_city_dictionary, tile_dictionary):
 
     return prefecture_tile_dict
 
-
-
-
-
 if __name__ == '__main__':
 
     # Read from JSON File
     with open('geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)
-
-
+    
     tile_dictionary = create_python_object(json_object)
     prefecture_city_dict = parse_scraped_info()
     prefecture_tile_dict = organize_by_prefecture(prefecture_city_dict, tile_dictionary)
