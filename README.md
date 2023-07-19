@@ -17,6 +17,10 @@ Dependencies:
 - Beautiful soup
 - Json
 - Requests
+- geopy
+- pickle
+- math
+
 
 
 

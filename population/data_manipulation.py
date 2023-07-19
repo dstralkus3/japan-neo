@@ -5,6 +5,12 @@ import data_visualization as dv
 import reverse_geocode
 import requests
 from bs4 import BeautifulSoup
+import pickle
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
+import math
 
 ##############################
 # RAW JSON DATA MANIPULATION #
@@ -36,14 +42,7 @@ def create_python_object(json_object):
 # WEB SCRAPING #
 ################
 
-def get_city(latitude, longitude):
-    location = reverse_geocode.get((longitude, latitude))
-    if location['country_code'] == 'JP':
-        return location['city']
-    else:
-        return 'Not in Japan'
-
-def gather_cities_from_prefectures():
+def prefecture_data():
     """
     Returnns a dictionary with prefectures as keys and a list of cities as values corresponding to the cities
     contained in that prefecture
@@ -66,77 +65,132 @@ def gather_cities_from_prefectures():
                     a_element = elt.find('a')
                     if a_element:
                         title = a_element.get('title')
+                        href = a_element.get('href')
                         if title:
                             parsed.append(title)
+                            if 'Prefecture' in title:
+                                continue
+                            else:
+                                new_url = "https://en.wikipedia.org" + href
+                                response = requests.get(new_url)
+                                new_content = response.content
+                                lat_lon_soup = BeautifulSoup(new_content, "html.parser")
+                                div = lat_lon_soup.find('div', {'class' :'vector-body-before-content'})
+                                span = div.find('span', {'class': 'geo'})
+                                if span != None:
+                                    lat_lon = span.text.replace(' ', '')
+                                    parsed.append(lat_lon.split(';'))
+
                 if parsed != None:
                     container_list.append(parsed)
             break
+
+    with open('./population/prefecturedata.json', 'w') as f:
+        f.write(json.dumps(container_list, indent = 2))
+
+def parse_scraped_info():
+    """
+    Reads from prefecturedata.json to create a python dictionary containing relevant information
+    """
+    with open('./population/data.pkl', 'rb') as file:
+        data_list = pickle.load(file)
     
-    # Parse city list further to create dictionary
-    prefecture_dictionary = {}
-    del container_list[0]
-    for city_prefecture_pair in container_list:
-        city_info = city_prefecture_pair[0] 
-        prefecture_info = city_prefecture_pair[1] 
-        if ',' in city_info:
-            city = city_info.split(",")[0].strip()
-        else:
-            city = city_info
-        prefecture = prefecture_info.split()[0]
-        
-        # Add to dictionary if not there already
-        if prefecture in prefecture_dictionary:
-            prefecture_dictionary[prefecture].append(city)
-        else:
-            prefecture_dictionary[prefecture] = [city]
+    prefecture_dict = {}
+    for elt in data_list:
+        if len(elt) < 3:
+            continue
+        city, coords, prefecture = elt[0], elt[1], elt[2]
+        if ',' in city:
+            city = city.split(',')[0]
+        if 'Prefecture' in prefecture:
+            prefecture = prefecture.split(' ')[0]
 
-    return prefecture_dictionary
+        if type(prefecture) == str:
+            if prefecture in prefecture_dict:
+                prefecture_dict[prefecture].append([city, coords])
+            else:
+                prefecture_dict[prefecture] = [city, coords]
+    
+    return prefecture_dict
 
-#####################
+##################### 
 # TILE ORGANIZATION #
 #####################
 
-def organize_by_city(tile_dictionary):
+def organize_by_prefecture(prefecture_city_dictionary, tile_dictionary):
     """
-    Given a tile dictionary of the formed returned by create_python_object(), returns a dictionary with key-value pairs
-    as prefectures with the corresponding keys of the tile dictionary that are located in that prefecture
-    """
-    city_dictionary = {}
-    for ix, tile in tile_dictionary.items():
-        city = get_city(tile[0], tile[1])
+    Given prefecture_city_dictionary returned by parse_scraped_info() and a tile dictionary,
+    creates a dictionary with prefectures as keys and tiles as values.
 
-        # Add to prefecture dictionary if not present
-        if city not in city_dictionary:
-            city_dictionary[city] = [ix]
+    """
+    # Organize by city
+    city_list = []
+    city_dict = {}
+    prefecture_tile_dict = {}
+    for prefecture, list in prefecture_city_dictionary.items():
+        city_list += list
+        prefecture_tile_dict[prefecture] = []
+    
+    for i, coordinates in tile_dictionary.items():
+        nearest_city = None
+        min_dist = 100000
+        for city in city_list:
+            city, str_coords = city[0], city[1]
+            try:
+                city_coords = [float(str_coords[1]), float(str_coords[0])]
+            except:
+                continue
+
+            dist = math.sqrt((coordinates[0] - city_coords[0])**2 + (coordinates[1] - city_coords[1])**2)
+            if dist < min_dist:
+                min_dist = dist
+                nearest_city = city
+        
+        if nearest_city not in city_dict:
+            city_dict[nearest_city] = [i]
         else:
-            city_dictionary[city].append(ix)
-
-    return city_dictionary
-
-def organize_by_prefecture(city_prefecture_dictionary, city_dictionary):
-    """
-    Given city_prefecture_dict returned by  gather_cities_from_prefectures() and a city dictionary of 
-    the form returned by organize_by_city(), creates a dictionary with prefectures as keys and tiles as values.
-    """
-    prefecture_dictionary = {}
-    for prefecture, cities in city_prefecture_dictionary.items():
-        node_list = []
+            city_dict[nearest_city].append(i)
+    
+    for prefecture, cities in prefecture_city_dict.items():
         for city in cities:
-            if city in city_dictionary:
-                node_list += city_dictionary[city]
-        prefecture_dictionary[prefecture] = node_list
+            try:
+                prefecture_tile_dict[prefecture] += city_dict[city[0]]
+            except:
+                continue
 
-    return prefecture_dictionary
+    return prefecture_tile_dict
+
+
+
+
 
 if __name__ == '__main__':
 
     # Read from JSON File
     with open('geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)
-
-    # Create python object
     tile_dictionary = create_python_object(json_object)
+    prefecture_city_dict = parse_scraped_info()
+    prefecture_tile_dict = organize_by_prefecture(prefecture_city_dict, tile_dictionary)
+
+    dv.plot_points_2d(tile_dictionary)
+    dv.plot_points_2d(tile_dictionary, prefectures = prefecture_tile_dict)
+    dv.plot_points_3d(tile_dictionary)
+    dv.plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
+
+
+
+    """
+    Change keys in city_dictionary:
+
+    - Aizu-wakamatsu -> Aizuwakamatsu
+    - Aki-takata -> Akitakata
+    - 
     
+    """
+    
+
+
     
 
 
