@@ -14,6 +14,9 @@ Dependencies:
 - mpl_toolkits
 - numpy
 - reverse_geocode
+- Beautiful soup
+- Json
+- Requests
 
 
 

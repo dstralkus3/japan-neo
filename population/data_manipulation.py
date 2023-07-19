@@ -2,7 +2,6 @@
 import json
 import numpy as np
 import data_visualization as dv
-
 import reverse_geocode
 import requests
 from bs4 import BeautifulSoup
