@@ -1,14 +1,16 @@
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import data_manipulation as dm
 
 ###############################
 # FUNCTIONS TO VISUALIZE DATA #
 ###############################
 
-def plot_points_2d(points, point_size=2):
+def plot_points_2d(points, point_size=2, prefectures = None):
     """
-    Plots a list of 2D points in R^2 using matplotlib.
+    Plots a list of 2D points in R^2 using matplotlib. Distinguishes between prefectures if 
+    prefecture dictionary of the form returned by organize by prefecture is passed in.
     """
     x_values = [point[0] for point in points]
     y_values = [point[1] for point in points]
@@ -44,6 +46,7 @@ def plot_points_3d(points, point_size = 2):
 
     plt.tight_layout()  
     plt.show()
+
 
 if __name__ == '__main__':
     pass
