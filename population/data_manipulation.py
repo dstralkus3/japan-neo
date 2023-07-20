@@ -1,7 +1,6 @@
 
 import json
 import numpy as np
-import data_visualization as dv
 import reverse_geocode
 import requests
 from bs4 import BeautifulSoup
@@ -11,6 +10,7 @@ from geopy.distance import geodesic
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import math
+
 
 
 ##############################
@@ -93,11 +93,11 @@ def parse_scraped_info():
     """
     Reads from prefecturedata.json to create a python dictionary containing relevant information
     """
-    with open('./population/relevant_data/data.pkl', 'rb') as file:
+    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
         data_list = pickle.load(file)
-    
+
     prefecture_dict = {}
-    for elt in data_list:
+    for elt in data_list['prefecture_city_list']:
         if len(elt) < 3:
             continue
         city, coords, prefecture = elt[0], elt[1], elt[2]
@@ -118,7 +118,7 @@ def parse_scraped_info():
 # TILE ORGANIZATION #
 #####################
 
-def organize_by_prefecture(prefecture_city_dictionary, tile_dictionary):
+def prefecture_tile_dict(prefecture_city_dictionary, tile_dictionary):
     """
     Given prefecture_city_dictionary returned by parse_scraped_info() and a tile dictionary,
     creates a dictionary with prefectures as keys and tiles as values.
@@ -152,13 +152,17 @@ def organize_by_prefecture(prefecture_city_dictionary, tile_dictionary):
         else:
             city_dict[nearest_city].append(i)
     
-    for prefecture, cities in prefecture_city_dict.items():
+    for prefecture, cities in prefecture_city_dictionary.items():
         for city in cities:
             try:
                 prefecture_tile_dict[prefecture] += city_dict[city[0]]
             except:
                 continue
 
+    from generateDistribution import change_key
+    change_key(prefecture_tile_dict, 'Hyōgo', 'Hyogo')
+    change_key(prefecture_tile_dict, 'Kōchi', 'Kochi')
+    change_key(prefecture_tile_dict, 'Ōita', 'Oita')
     return prefecture_tile_dict
 
 if __name__ == '__main__':
@@ -169,14 +173,12 @@ if __name__ == '__main__':
     
     tile_dictionary = create_python_object(json_object)
     prefecture_city_dict = parse_scraped_info()
-    prefecture_tile_dict = organize_by_prefecture(prefecture_city_dict, tile_dictionary)
-
-    # Visualize data
-    dv.plot_points_2d(tile_dictionary)
-    dv.plot_points_2d(tile_dictionary, prefectures = prefecture_tile_dict)
-    dv.plot_points_3d(tile_dictionary)
-    dv.plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
+    prefecture_tile_dict = prefecture_tile_dict(prefecture_city_dict, tile_dictionary)
+    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
+        data_dict = pickle.load(file)
+        tile_pdf_dict = data_dict['tile_pdf_dict']
     
+
 
         
 

@@ -2,6 +2,9 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import data_manipulation as dm
+import pickle
+import json
+
 
 ###############################
 # FUNCTIONS TO VISUALIZE DATA #
@@ -43,7 +46,7 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None):
     plt.grid(True)
     plt.show()
 
-def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None):
+def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf = None):
     """
     Plots a list of 2D points in R^3 using matplotlib.
     """
@@ -52,6 +55,12 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None):
     points = []
     colors = []
 
+    if tile_pdf:
+        new_tile_dictionary = {}
+        for ix, coords in tile_dictionary.items():
+            new_tile_dictionary[ix] = [coords[0], coords[1], tile_pdf[ix]]
+        tile_dictionary = new_tile_dictionary
+    
     if prefectures:
         for prefecture, tiles in prefectures.items():
             color = color_list[counter]
@@ -62,13 +71,15 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None):
             counter %= 7
     else:
         points = tile_dictionary.values()
-
     
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection='3d')
     x_values = [point[0] for point in points]
     y_values = [point[1] for point in points]
-    z_values = [0] * len(points)  # Set z-coordinates to 0 for the 3D plane
+    if tile_pdf:
+        z_values = [point[2] for point in points]  # Set z-coordinates to 0 for the 3D plane
+    else:
+        z_values = [0 for point in points] 
     if colors:
         ax.scatter(x_values, y_values, z_values, c = colors, s = point_size)
         ax.set_title('Japan Geometry with Prefectures')
@@ -90,4 +101,22 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None):
 
 
 if __name__ == '__main__':
-    pass
+    
+    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
+        data_dict = pickle.load(file)
+        tile_pdf_dict = data_dict['tile_pdf_dict']
+    with open('geometry/geometries/finer_grain.json') as file:
+        json_object = json.load(file)
+
+    tile_dictionary = dm.create_python_object(json_object)
+    prefecture_city_dict = dm.parse_scraped_info()
+    prefecture_tile_dict = dm.prefecture_tile_dict(prefecture_city_dict, tile_dictionary)
+
+    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
+        data_dict = pickle.load(file)
+        tile_pdf_dict = data_dict['tile_pdf_dict']
+
+    # Visualize data
+    plot_points_3d(tile_dictionary)
+    plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
+    plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict, tile_pdf = tile_pdf_dict)
