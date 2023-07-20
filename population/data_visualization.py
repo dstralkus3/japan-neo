@@ -4,11 +4,11 @@ from mpl_toolkits.mplot3d import Axes3D
 import data_manipulation as dm
 import pickle
 import json
+from relevant_data.scraping import *
 
-
-###############################
-# FUNCTIONS TO VISUALIZE DATA #
-###############################
+###########################
+# SUPPORT FOR 2D PLOTTING #
+###########################
 
 def plot_points_2d(tile_dictionary, point_size=2, prefectures = None):
     """
@@ -45,6 +45,10 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None):
     plt.ylabel('Longitude')
     plt.grid(True)
     plt.show()
+
+###########################
+# SUPPORT FOR 3D PLOTTING #
+###########################
 
 def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf = None):
     """
@@ -101,20 +105,16 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
 
 
 if __name__ == '__main__':
-    
+
     with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
         data_dict = pickle.load(file)
+        prefecture_tile_dict = data_dict['prefecture_tile_dict']
         tile_pdf_dict = data_dict['tile_pdf_dict']
+
     with open('geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)
 
-    tile_dictionary = dm.create_python_object(json_object)
-    prefecture_city_dict = dm.parse_scraped_info()
-    prefecture_tile_dict = dm.prefecture_tile_dict(prefecture_city_dict, tile_dictionary)
-
-    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
-        data_dict = pickle.load(file)
-        tile_pdf_dict = data_dict['tile_pdf_dict']
+    tile_dictionary = dm.create_tile_dictionary(json_object)
 
     # Visualize data
     plot_points_3d(tile_dictionary)

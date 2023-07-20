@@ -10,14 +10,14 @@ from geopy.distance import geodesic
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import math
-
+from relevant_data.scraping import *
 
 
 ##############################
 # RAW JSON DATA MANIPULATION #
 ##############################
 
-def create_python_object(json_object):
+def create_tile_dictionary(json_object):
     """
     Given a json object of the form found in geometry/geometries, returns a python dictionary of the tile centers.
     """
@@ -39,91 +39,16 @@ def create_python_object(json_object):
 
     return tile_dictionary
 
-################
-# WEB SCRAPING #
-################
-
-def prefecture_data():
-    """
-    Returnns a dictionary with prefectures as keys and a list of cities as values corresponding to the cities
-    contained in that prefecture
-    """
-    # Retrieve content
-    url = "https://en.wikipedia.org/wiki/List_of_cities_in_Japan"
-    response = requests.get(url)
-    html_content = response.content
-    soup = BeautifulSoup(html_content, "html.parser")
-
-    # Initialize container list and scrape html content
-    container_list = []
-    for table in soup.findAll('table'):
-        if table.get('class') == ['wikitable', 'sortable']:
-            tbody = table.find('tbody')
-            for tr in tbody.findAll('tr'):
-                td_element = tr.findAll('td')
-                parsed = []
-                for elt in td_element:
-                    a_element = elt.find('a')
-                    if a_element:
-                        title = a_element.get('title')
-                        href = a_element.get('href')
-                        if title:
-                            parsed.append(title)
-                            if 'Prefecture' in title:
-                                continue
-                            else:
-                                new_url = "https://en.wikipedia.org" + href
-                                response = requests.get(new_url)
-                                new_content = response.content
-                                lat_lon_soup = BeautifulSoup(new_content, "html.parser")
-                                div = lat_lon_soup.find('div', {'class' :'vector-body-before-content'})
-                                span = div.find('span', {'class': 'geo'})
-                                if span != None:
-                                    lat_lon = span.text.replace(' ', '')
-                                    parsed.append(lat_lon.split(';'))
-
-                if parsed != None:
-                    container_list.append(parsed)
-            break
-
-    with open('./population/prefecturedata.json', 'w') as f:
-        f.write(json.dumps(container_list, indent = 2))
-
-def parse_scraped_info():
-    """
-    Reads from prefecturedata.json to create a python dictionary containing relevant information
-    """
-    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
-        data_list = pickle.load(file)
-
-    prefecture_dict = {}
-    for elt in data_list['prefecture_city_list']:
-        if len(elt) < 3:
-            continue
-        city, coords, prefecture = elt[0], elt[1], elt[2]
-        if ',' in city:
-            city = city.split(',')[0]
-        if 'Prefecture' in prefecture:
-            prefecture = prefecture.split(' ')[0]
-
-        if type(prefecture) == str:
-            if prefecture in prefecture_dict:
-                prefecture_dict[prefecture].append([city, coords])
-            else:
-                prefecture_dict[prefecture] = [city, coords]
-    
-    return prefecture_dict
-
 ##################### 
 # TILE ORGANIZATION #
 #####################
 
-def prefecture_tile_dict(prefecture_city_dictionary, tile_dictionary):
+def create_prefecture_tile_dict(prefecture_city_dictionary, tile_dictionary):
     """
     Given prefecture_city_dictionary returned by parse_scraped_info() and a tile dictionary,
     creates a dictionary with prefectures as keys and tiles as values.
-
     """
+
     # Organize by city
     city_list = []
     city_dict = {}
@@ -159,25 +84,30 @@ def prefecture_tile_dict(prefecture_city_dictionary, tile_dictionary):
             except:
                 continue
 
-    from generateDistribution import change_key
     change_key(prefecture_tile_dict, 'Hyōgo', 'Hyogo')
     change_key(prefecture_tile_dict, 'Kōchi', 'Kochi')
     change_key(prefecture_tile_dict, 'Ōita', 'Oita')
+
     return prefecture_tile_dict
 
-if __name__ == '__main__':
+#######################################
+# SUPPORT FOR POPULATION DISTRIBUTION #
+#######################################
 
-    # Read from JSON File
-    with open('geometry/geometries/finer_grain.json') as file:
-        json_object = json.load(file)
-    
-    tile_dictionary = create_python_object(json_object)
-    prefecture_city_dict = parse_scraped_info()
-    prefecture_tile_dict = prefecture_tile_dict(prefecture_city_dict, tile_dictionary)
-    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
-        data_dict = pickle.load(file)
-        tile_pdf_dict = data_dict['tile_pdf_dict']
-    
+def generateDistribution(prefecture_tile_dict, prefecture_pop_dict, prefecture_area_dict):
+    """
+    Given a tile dictionary, and two dicts of the form returned by prefecture data,
+    returns a dictionary with tile indices as keys and pdf values as values
+    """
+    tile_pdf_dict = {}
+    for prefecture, tiles in prefecture_tile_dict.items():
+        for tile in tiles:
+            tile_pdf_dict[tile] = round(prefecture_pop_dict[prefecture] / float(prefecture_area_dict[prefecture]), 7)
+
+    return tile_pdf_dict
+
+if __name__ == '__main__':
+    pass
 
 
         
