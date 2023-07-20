@@ -4,7 +4,8 @@ The geometry folder contains files to simplify Japan's geometry for better compu
 used to create the geometric representation while the geometries sub-folders contain the actual geometries. Within the geometries sub-folder, finer_grain.json and rougher_grain.json contain the actual representations of Japan.
 
 The population folder contains files to populate the discretized geometry with a population density function. This includes
-necessary data manipulation and visualization tools. 
+necessary data manipulation and visualization tools. Furthermore, the relevant_data folder contains logic to scrape information from
+the web and pickle that data so the data_manipulation.py and data_visualization.py files are abstracted from it.
 
 The routing folder contains logic to route vehicles.
 
