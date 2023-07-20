@@ -6860,5 +6860,5 @@ prefecture_city_list = [
     "Yamanashi Prefecture"
   ]
 ]
-with open('./population/data.pkl', 'wb') as file:
+with open('../population/relevant_data/data.pkl', 'wb') as file:
     pickle.dump(prefecture_city_list, file)

@@ -12,6 +12,7 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import math
 
+
 ##############################
 # RAW JSON DATA MANIPULATION #
 ##############################
@@ -92,7 +93,7 @@ def parse_scraped_info():
     """
     Reads from prefecturedata.json to create a python dictionary containing relevant information
     """
-    with open('./population/data.pkl', 'rb') as file:
+    with open('./population/relevant_data/data.pkl', 'rb') as file:
         data_list = pickle.load(file)
     
     prefecture_dict = {}
@@ -176,7 +177,6 @@ if __name__ == '__main__':
     dv.plot_points_3d(tile_dictionary)
     dv.plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
     
-
 
         
 

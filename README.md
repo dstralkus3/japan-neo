@@ -20,6 +20,8 @@ Dependencies:
 - geopy
 - pickle
 - math
+- gspread
+- pandas
 
 
 
