@@ -80,17 +80,31 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
     ax = fig.add_subplot(111, projection='3d')
     x_values = [point[0] for point in points]
     y_values = [point[1] for point in points]
-    
+
     if tile_pdf:
         z_values = [point[2] for point in points]  # Set z-coordinates to 0 for the 3D plane
     else:
         z_values = [0 for point in points] 
-    if colors:
-        ax.scatter(x_values, y_values, z_values, c = colors, s = point_size)
-        ax.set_title('Japan Geometry with Prefectures')
+
+    if prefectures:
+        if tile_pdf:
+            ax.scatter(x_values, y_values, z_values, c = colors, s = point_size)
+            ax.set_title('Japan Geometry with Prefectures with Population')
+
+            # Uncomment to draw lines from (x,y) to (z)
+            # for i in range(len(x_values)):
+            #     # Draw the line from (x, y) to (x, y, z)
+            #     ax.plot([x_values[i], x_values[i]], [y_values[i], y_values[i]], [0, z_values[i]], color=colors[i], linestyle='-')
+
+        else:
+            ax.scatter(x_values, y_values, z_values, c = colors, s = point_size)
+            ax.set_title('Japan Geometry with Prefectures without Population')
     else:
         ax.scatter(x_values, y_values, z_values, s = point_size)
-        ax.set_title('Japan Geometry without Prefectures')
+        if tile_pdf:
+            ax.set_title('Japan Geometry without Prefectures with Population')
+        else:
+            ax.set_title('Japan Geometry without Prefectures without Population')
         
     ax.set_xlabel('Latitude')
     ax.set_ylabel('Longitude')
