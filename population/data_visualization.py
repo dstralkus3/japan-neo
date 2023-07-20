@@ -80,6 +80,7 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
     ax = fig.add_subplot(111, projection='3d')
     x_values = [point[0] for point in points]
     y_values = [point[1] for point in points]
+    
     if tile_pdf:
         z_values = [point[2] for point in points]  # Set z-coordinates to 0 for the 3D plane
     else:
@@ -90,29 +91,28 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
     else:
         ax.scatter(x_values, y_values, z_values, s = point_size)
         ax.set_title('Japan Geometry without Prefectures')
-
+        
     ax.set_xlabel('Latitude')
     ax.set_ylabel('Longitude')
 
     # Adjust the viewing limits (zoom in)
     ax.set_xlim(min(x_values), max(x_values))
     ax.set_ylim(min(y_values), max(y_values))
-    ax.set_zlim(-.1,.1)  # Set z-limits based on your requirements
+    ax.set_zlim(-.25,.25)  # Set z-limits based on your requirements
 
     plt.tight_layout()  
     plt.show()
-    
 
 
 if __name__ == '__main__':
 
+    # Load relevant data
+    with open('geometry/geometries/finer_grain.json') as file:
+        json_object = json.load(file)
     with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
         data_dict = pickle.load(file)
         prefecture_tile_dict = data_dict['prefecture_tile_dict']
         tile_pdf_dict = data_dict['tile_pdf_dict']
-
-    with open('geometry/geometries/finer_grain.json') as file:
-        json_object = json.load(file)
 
     tile_dictionary = dm.create_tile_dictionary(json_object)
 

@@ -12,10 +12,9 @@ from fuzzywuzzy import process
 import math
 from relevant_data.scraping import *
 
-
-##############################
-# RAW JSON DATA MANIPULATION #
-##############################
+############################################################
+# SUPPORT FOR INITIALIZING STRUCTURE FROM GEOMETRIC OBJECT #
+############################################################
 
 def create_tile_dictionary(json_object):
     """
@@ -106,9 +105,31 @@ def generateDistribution(prefecture_tile_dict, prefecture_pop_dict, prefecture_a
 
     return tile_pdf_dict
 
-if __name__ == '__main__':
-    pass
+def normalizeDistribution(tile_pdf_dict):
+    """
+    Given a tile_pdf_dict of the form returned by generateDistribution, normalizes so the sum of each
+    tiles value is 1. Returns a new dictionary with the normalized values. Does not modify orginal
+    """
+    normalized_dict = {}
+    normalizing_constant = 1/sum(tile_pdf_dict.values())
+    for key,val in tile_pdf_dict.items():
+        normalized_dict[key] = round(val * normalizing_constant, 5)
+        
+    return normalized_dict
 
+if __name__ == '__main__':
+
+    # Load relevant data
+    with open('geometry/geometries/finer_grain.json') as file:
+        json_object = json.load(file)
+
+    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
+        data_dict = pickle.load(file)
+        tile_pdf_dict = data_dict['tile_pdf_dict']
+    
+    # Normalize pdf
+    normalized = normalizeDistribution(tile_pdf_dict)
+    print(normalized)
 
         
 
