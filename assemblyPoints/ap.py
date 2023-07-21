@@ -33,7 +33,7 @@ def assign_ap_radius(ap_dictionary, tile_dict, tile_pdf_dict):
     ap_radius_dictionary = {}
     for ap, coords in ap_dict.items():
         ap_radius_dictionary[ap] = {}
-        radius = .1
+        radius = 0
         percent_covered = 0
         while percent_covered < .999:
             tiles_covered = ap_influence(tile_dict, coords[0], radius)
@@ -42,48 +42,68 @@ def assign_ap_radius(ap_dictionary, tile_dict, tile_pdf_dict):
             percent_covered = covered/total_people
             radius += .1
     
-    # Set radii to 0 and initialize min heap of cost of decrementing radius
-    heap = []
-    for ap in ap_dict:
-        covered_after = ap_radius_dictionary[ap][.1]
-        people_covered_after = sum([tile_pdf_dict[tile] for tile in covered_after])
-        difference = round(people_covered_after,2)
-        heap.append((-difference, ap))
+    # # Set radii to 0 and initialize min heap of cost of decrementing radius
+    # heap = []
+    # for ap in ap_dict:
+    #     covered_after = ap_radius_dictionary[ap][.1]
+    #     people_covered_after = sum([tile_pdf_dict[tile] for tile in covered_after])
+    #     difference = round(people_covered_after,2)
+    #     heap.append((-difference, ap))
 
     # Increment until the pdf is no longer covered
-    percent_covered = 0
-    total_tiles_covered = set()
+    # percent_covered = 0
+    # total_tiles_covered = set()
 
-    while percent_covered < .9:
+    # while percent_covered < .9:
 
-        to_increment = heapq.heappop(heap)
-        # Change radius
-        name_of_ap = to_increment[1]
+    #     to_increment = heapq.heappop(heap)
+    #     # Change radius
+    #     name_of_ap = to_increment[1]
         
-        current = (ap_dict[name_of_ap][0], ap_dict[name_of_ap][1])
-        new = (current[0], round(current[1] + .1, 1))
-        ap_dict[name_of_ap] = new
+    #     current = (ap_dict[name_of_ap][0], ap_dict[name_of_ap][1])
+    #     new = (current[0], round(current[1] + .1, 1))
+    #     ap_dict[name_of_ap] = new
 
-        # Re-calculate coverage
-        tiles_covered = get_tiles_covered(tile_dict, ap_dict)
-        total_tiles_covered = total_tiles_covered.union(tiles_covered)
-        people_covered = sum([tile_pdf_dict[tile] for tile in tiles_covered])
-        percent_covered = people_covered / total_people
+    #     # Re-calculate coverage
+    #     tiles_covered = get_tiles_covered(tile_dict, ap_dict)
+    #     total_tiles_covered = total_tiles_covered.union(tiles_covered)
+    #     people_covered = sum([tile_pdf_dict[tile] for tile in tiles_covered])
+    #     percent_covered = people_covered / total_people
 
-        # Push to heap
-        covering_next = ap_radius_dictionary[ap][round(new[1] + .1, 1)]
-        newly_covered = covering_next.difference(total_tiles_covered)
-        overlap = len(newly_covered)/len(covering_next)
+    #     # Push to heap
+    #     covering_next = ap_radius_dictionary[ap][round(new[1] + .1, 1)]
+    #     newly_covered = covering_next.difference(total_tiles_covered)
+    #     overlap = len(newly_covered)/len(covering_next)
 
-        benefit = sum([tile_pdf_dict[tile] for tile in covering_next])
+    #     benefit = sum([tile_pdf_dict[tile] for tile in covering_next])
 
-        if benefit != 0:
-            heapq.heappush(heap,(-(overlap/benefit), name_of_ap))
-        else:
-            heapq.heappush(heap,(-overlap, name_of_ap))
+    #     if benefit != 0:
+    #         heapq.heappush(heap,(-(overlap/benefit), name_of_ap))
+    #     else:
+    #         heapq.heappush(heap,(-overlap, name_of_ap))
     
+    to_check = ap_dict.keys()
+    total_tiles_covered = set()
+    while to_check:
+        next_round = []
+        for ap in to_check:
+            # Increment radius by .1 if it doesn't intersect anything
+            current_radius = ap_dict[ap][1]
+            next_radius = round(current_radius + .1, 1)
+            if ap_radius_dictionary[ap][next_radius].difference(ap_radius_dictionary[ap][current_radius]).intersection(total_tiles_covered):
+                continue
+            else:
+                ap_dict[ap] = (ap_dict[ap][0], next_radius)
+                total_tiles_covered = total_tiles_covered.union(ap_radius_dictionary[ap][next_radius])
+                next_round.append(ap)
+        to_check = next_round
     
-    return ap_dict
+    # Calculate percent covered
+    tiles_covered = get_tiles_covered(tile_dict, ap_dict)
+    total_tiles_covered = total_tiles_covered.union(tiles_covered)
+    people_covered = sum([tile_pdf_dict[tile] for tile in tiles_covered])
+    percent_covered = people_covered / total_people
+    return ap_dict, percent_covered
 
 def get_tiles_covered(tile_dict, ap_dict):
     """

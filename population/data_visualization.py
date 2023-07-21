@@ -169,7 +169,8 @@ if __name__ == '__main__':
         ap_dict = data_dict['ap_dict']
 
     tile_dict = dm.create_tile_dictionary(json_object)
-    updated_ap_dict = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
+    radii_assignment = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
+    updated_ap_dict, percent_covered = radii_assignment[0], radii_assignment[1]
     tiles_covered = get_tiles_covered(tile_dict, updated_ap_dict)
 
     # Visualize data in 2D
