@@ -9,6 +9,8 @@ the web and pickle that data so the data_manipulation.py and data_visualization.
 
 The routing folder contains logic to route vehicles.
 
+The assembly point folder contains logic that draws from the population folder to choose assembly points.
+
 Dependencies:
 - pyvrp
 - matplotlib
@@ -21,8 +23,9 @@ Dependencies:
 - geopy
 - pickle
 - math
-- gspread
 - pandas
+- time
+
 
 
 

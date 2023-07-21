@@ -71,7 +71,7 @@ def parse_scraped_prefecture_data():
     Reads from pickle to parse prefecture_city_list to create a python dictionary 
     containing relevant information
     """
-    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
+    with open('./population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as file:
         data_list = pickle.load(file)
 
     prefecture_dict = {}
@@ -102,7 +102,7 @@ def scrape_prefecture_pop_and_area_dict():
     prefecture_area_dict = {}
     for index, row in df.iterrows():
         prefecture = row['Prefecture']
-        num_people = int(row['Americans'])
+        num_people = int(row['Scaled Up'])
         prefecture_pop_dict[prefecture] = num_people
         # Scrapes web for prefecture area
         url = "https://en.wikipedia.org/wiki/List_of_Japanese_prefectures_by_area"
@@ -147,4 +147,4 @@ def scrape_prefecture_pop_and_area_dict():
     return prefecture_pop_dict, prefecture_area_dict
 
 if __name__ == '__main__':
-    pass
+    print(scrape_prefecture_pop_and_area_dict()[0])

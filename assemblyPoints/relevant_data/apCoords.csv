@@ -1,0 +1,94 @@
+Location,Description,"Latitude, Longitude",Color
+Haneda Airport,Airport,"35.54939, 139.77983",yellow
+Kansai Airport,Airport,"34.432, 135.23039",teal
+Narita Airport,Airport,"35.77218, 140.39285",yellow
+New Chitose Airport,Airport,"42.78757, 141.68068",red
+Chubu Centrair Airport,Airport,"34.85736, 136.81075",green
+Osaka Itami Airport,Airport,"34.79082, 135.44076",teal
+Nagasaki Airport,Airport,"32.91373, 129.91844",violet
+Fukuoka Airport,Airport,"33.58499, 130.44908",violet
+Sendai Airport,Airport,"38.1379, 140.92891",orange
+Kagoshima Airport,Airport,"31.80295, 130.71801",violet
+Kobe Airport,Airport,"34.63536, 135.22492",teal
+Kumamoto Airport,Airport,"32.83499, 130.85897",violet
+Miyazaki Airport,Airport,"31.8762, 131.44732",violet
+Yokohama Port,Sea Port,"35.45, 139.64611",yellow
+Kobe Port,Sea Port,"34.67749, 135.22694",teal
+Tokyo Port,Sea Port,"35.61694, 139.79555",yellow
+Osaka Port,Sea Port,"34.65159, 135.43489",teal
+Nagoya Port,Sea Port,"35.08, 136.88",green
+Hakodate Port,Sea Port,"41.78532, 140.71594",red
+Hakata Port,Sea Port,"33.60926, 130.40129",violet
+Hiroshima Port,Sea Port,"34.36183, 132.51559",blue
+Nagasaki Port,Sea Port,"32.74567, 129.86843",violet
+Kanazawa Port,Sea Port,"36.6082, 136.61549",green
+Sasebo Port,Sea Port,"33.16165, 129.72454",violet
+Kochi Port,Sea Port,"33.50311, 133.57398",purple
+Japan National Stadium,Stadium,"35.67782, 139.71454",yellow
+Nissan Stadium,Stadium,"35.50994, 139.60639",yellow
+Saitama Stadium,Stadium,"35.90372, 139.7174",yellow
+Tokyo Dome,Dome Stadium,"35.70563, 139.75189",yellow
+Kyocera Dome Osaka,Dome Stadium,"34.66928, 135.47614",teal
+Sapparo Dome,Dome Stadium,"34.66928, 135.47614",red
+Fukuoka PayPay Dome,Dome Stadium,"33.59539, 130.36212",violet
+Shizuoka Stadium,Stadium,"34.74345, 137.97076",green
+Ajinomoto Stadium,Stadium,"35.66405, 139.52717",yellow
+Nagoya Dome,Dome Stadium,"35.186, 136.94739",green
+Q&A Stadium Miyagi,Stadium,"38.33543, 140.95056",orange
+Koshien Stadium,Stadium,"34.72121, 135.36165",teal
+Yanmar Stadium Nagai,Stadium,"34.61404, 135.51859",teal
+Toyota Stadium,Stadium,"35.08447, 137.17091",green
+Kobe Universiade Memorial,Stadium,"34.68238, 135.08034",teal
+Showa Denko Dome,Dome Stadium,"33.20078, 131.6575",violet
+Denka Big Swan Stadium,Stadium,"37.88254, 139.05916",green
+Kashima Football Stadium,Stadium,"35.99201, 140.64016",yellow
+Edion Stadium,Stadium,"34.44074, 132.39436",blue
+Noevir Stadium,Stadium,"34.65681, 135.16962",teal
+Belluna Dome,Half Dome Stadium,"35.76901, 139.42019",yellow
+Mazda Stadium,Stadium,"34.39188, 132.48457",blue
+Todoroki Athletics Stadium,Stadium,"35.5858, 139.65272",yellow
+Hanazono Rugby Stadium,Stadium,"34.66895, 135.62632",teal
+Gifu Nagaragawa Stadium,Stadium,"35.44131, 136.76609",green
+Toyama Athletics Stadium,Stadium,"36.625, 137.19569",green
+Kanseki Stadium,Stadium,"36.515, 139.85752",yellow
+Kochi Haruno Stadium,Stadium,"33.50995, 133.50135",purple
+Matsumoto Daira Stadium,Stadium,"36.25814, 137.98862",green
+Chichibunomiya Rugby ,Stadium,"35.67265, 139.71833",yellow
+Ekimae Stadium,Stadium,"33.37167, 130.52024",violet
+Matsue Athletics Stadium,Stadium,"35.43739, 133.0639",blue
+Akita Prefectural Stadium,Stadium,"39.72147, 140.09986",orange
+Fukui Prefectural Stadium,Stadium,"36.05188, 136.18272",green
+Kitakami Stadium,Stadium,"39.25805, 141.09602",orange
+Best Denki Stadium,Stadium,"33.58589, 130.46079",violet
+ND Soft Stadium,Stadium,"38.33564, 140.37846",orange
+Kamoike Ballpark,Stadium,"31.56436, 130.55775",violet
+Toho Stadium,Stadium,"37.72323, 140.36137",orange
+Sapparo Atsubetsu,Stadium,"43.019, 141.46407",red
+Kakuhiro Group Athletics,Stadium,"40.83889, 140.84144",orange
+Takebishi Stadium,Stadium,"34.99345, 135.71396",teal
+Pocarisweat Stadium,Stadium,"34.16827, 134.61771",purple
+IAI Stadium,Stadium,"34.98432, 138.4813",green
+Transcosmos Stadium,Stadium,"32.83862, 130.03942",violet
+Soyu Stadium,Stadium,"39.72154, 140.0958",orange
+Komazawa Olympic Stadium,Stadium,"35.62557, 139.66364",yellow
+Chiyodai Baseball Stadium,Stadium,"41.78525, 140.74672",red
+Hinata Stadium,Stadium,"31.82437, 131.44806",violet
+Kashiwanoha Stadium,Stadium,"35.89774, 139.93624",yellow
+Ningineer Stadium,Stadium,"33.76823, 132.79759",purple
+Ishin Me-Life Stadium,Stadium,"34.15445, 131.4375",blue
+Ota Athletics Stadium,Stadium,"36.27539, 139.39692",yellow
+Obihiro Athletics Stadium,Stadium,"42.89413, 143.14523",red
+Hanasaki Sports Park,Stadium,"43.79116, 142.3753",red
+Nagaoka Athletics Stadium,Dome Stadium,"37.44636, 138.79768",green
+US Embassy ,Embassy,"35.6688, 139.74332",yellow
+US Consolate General Osaka-Kobe,Consolate,"34.69679, 135.50184",teal
+US Consolate General Sapparo,Consolate,"43.05634, 141.31369",red
+US Consolate Fukuoka,Consolate,"33.5881, 130.37302",violet
+US Consolate Nagoya,Consolate,"35.17273, 136.89028",green
+US army Camp Zama,Military Base,"35.48958, 139.39573",yellow
+Yokota Air Base,Military Base,"35.74283, 139.33842",yellow
+Misawa Air Base,Military Base,"40.69892, 141.37457",orange
+MCAS Iwakuni,Military Base,"34.14283, 132.22518",blue
+Yokosuka Navy Base,Military Base,"35.28441, 139.66578",yellow
+Atsugi Navy Base,Military Base,"35.45672, 139.44415",yellow
+Sasebo Navy Base,Military Base,"33.16715, 129.71534",purple

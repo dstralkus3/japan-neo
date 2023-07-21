@@ -1,4 +1,6 @@
 
+import sys
+import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import data_manipulation as dm
@@ -6,41 +8,66 @@ import pickle
 import json
 from relevant_data.scraping import *
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+from assemblyPoints.ap import *
+
 ###########################
 # SUPPORT FOR 2D PLOTTING #
 ###########################
 
-def plot_points_2d(tile_dictionary, point_size=2, prefectures = None):
+def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None, covered = set()):
     """
     Given a tile dictionary, plots a list of 2D points in R^2 using matplotlib. Distinguishes between prefectures if 
     prefecture dictionary of the form returned by organize by prefecture is passed in.
     """
     color_list = ['red', 'blue', 'black', 'yellow', 'orange', 'pink', 'purple']
-    counter = 0 
-    points = []
-    colors = []
+    sizes = [point_size for x in range(len(tile_dictionary.keys()))]
 
     if prefectures:
+        tile_set = set()
+        points = []
+        colors = []
+        counter = 0 
         for prefecture, tiles in prefectures.items():
             color = color_list[counter]
             for tile in tiles:
-                points.append(tile_dictionary[tile])
-                colors.append(color)
+                if tile not in tile_set:
+                    points.append(tile_dictionary[tile])
+                    if tile not in covered:
+                        colors.append(color)
+                    else:
+                        colors.append('black')
+
+                    tile_set.add(tile)
+                else:
+                    continue
             counter += 1
             counter %= 7
     else:
-        points = tile_dictionary.values()
-
+        points = []
+        colors = []
+        for i, coords in tile_dictionary.items():
+            points.append(coords)
+            if i in covered:
+                colors.append('red')
+            else:
+                colors.append('slategrey')
+            
     x_values = [point[0] for point in points]
     y_values = [point[1] for point in points]
 
-    if colors:
-        plt.scatter(x_values, y_values, c = colors, s = point_size)
-        plt.title('Japan Geometry with Prefectures')
-    else:
-        plt.scatter(x_values, y_values, s = point_size)
-        plt.title('Japan Geometry without Prefectures')
+    if aps:
+        for coords in aps.values():
+            x_values.append(coords[1])
+            y_values.append(coords[0])
+            colors.append('red')
+            sizes.append(1)
+    
 
+    plt.scatter(x_values, y_values, c = colors, s = sizes)
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
     plt.grid(True)
@@ -91,11 +118,6 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
             ax.scatter(x_values, y_values, z_values, c = colors, s = point_size)
             ax.set_title('Japan Geometry with Prefectures with Population')
 
-            # Uncomment to draw lines from (x,y) to (z)
-            # for i in range(len(x_values)):
-            #     # Draw the line from (x, y) to (x, y, z)
-            #     ax.plot([x_values[i], x_values[i]], [y_values[i], y_values[i]], [0, z_values[i]], color=colors[i], linestyle='-')
-
         else:
             ax.scatter(x_values, y_values, z_values, c = colors, s = point_size)
             ax.set_title('Japan Geometry with Prefectures without Population')
@@ -112,7 +134,7 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
     # Adjust the viewing limits (zoom in)
     ax.set_xlim(min(x_values), max(x_values))
     ax.set_ylim(min(y_values), max(y_values))
-    ax.set_zlim(-.25,.25)  # Set z-limits based on your requirements
+
 
     plt.tight_layout()  
     plt.show()
@@ -123,14 +145,27 @@ if __name__ == '__main__':
     # Load relevant data
     with open('geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)
-    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
+    with open('./population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as file:
         data_dict = pickle.load(file)
         prefecture_tile_dict = data_dict['prefecture_tile_dict']
         tile_pdf_dict = data_dict['tile_pdf_dict']
+        normalized_pdf_dict = data_dict['normalized_tile_pdf_dict']
+
+    with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
+        data_dict = pickle.load(f)
+        ap_dict = data_dict['ap_dict']
 
     tile_dictionary = dm.create_tile_dictionary(json_object)
 
-    # Visualize data
-    plot_points_3d(tile_dictionary)
-    plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
-    plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict, tile_pdf = tile_pdf_dict)
+    # Visualize data in 2D
+    plot_points_2d(tile_dictionary)
+    plot_points_2d(tile_dictionary, prefectures = prefecture_tile_dict)
+    plot_points_2d(tile_dictionary, aps = ap_dict)
+
+    total_covered = choose_aps(ap_dict, tile_dictionary, tile_pdf_dict, .4)
+    plot_points_2d(tile_dictionary, aps = ap_dict, covered = total_covered)
+    # Visualize data in 3D
+    # plot_points_3d(tile_dictionary)
+    # plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
+    # plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict, tile_pdf = normalized_pdf_dict)
+    

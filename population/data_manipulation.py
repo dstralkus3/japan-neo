@@ -100,8 +100,9 @@ def generateDistribution(prefecture_tile_dict, prefecture_pop_dict, prefecture_a
     """
     tile_pdf_dict = {}
     for prefecture, tiles in prefecture_tile_dict.items():
+        area = len(tiles)
         for tile in tiles:
-            tile_pdf_dict[tile] = round(prefecture_pop_dict[prefecture] / float(prefecture_area_dict[prefecture]), 7)
+            tile_pdf_dict[tile] = round(prefecture_pop_dict[prefecture] / area , 7)
 
     return tile_pdf_dict
 
@@ -123,12 +124,16 @@ if __name__ == '__main__':
     with open('geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)
 
-    with open('./population/relevant_data/pickleFiles/pickledData.pkl', 'rb') as file:
+    with open('./population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as file:
         data_dict = pickle.load(file)
-        tile_pdf_dict = data_dict['tile_pdf_dict']
-    
+        prefecture_tile_dict = data_dict['prefecture_tile_dict']
+        prefecture_pop_dict = data_dict['prefecture_pop_dict']
+        prefecture_area_dict = data_dict['prefecture_area_dict']
+
     # Normalize pdf
-    normalized = normalizeDistribution(tile_pdf_dict)
+    tile_dictionary = create_tile_dictionary(json_object)
+    distribution = generateDistribution(prefecture_tile_dict, prefecture_pop_dict, prefecture_area_dict)
+    normalized = normalizeDistribution(distribution)
     print(normalized)
 
         
