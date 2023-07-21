@@ -14,7 +14,8 @@ def generate_aps():
         name_of_ap = row['Place']
         corresponding_row = coords_df.loc[coords_df['Location'] == name_of_ap]
         coords = corresponding_row['Latitude, Longitude'].values[0].replace(' ', '').split(',')
-        ap_dict[name_of_ap] = coords
+        flt_coords = [float(coords[0]), float(coords[1])]
+        ap_dict[name_of_ap] = (flt_coords,0)
 
     return ap_dict
 

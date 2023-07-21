@@ -18,7 +18,7 @@ from assemblyPoints.ap import *
 # SUPPORT FOR 2D PLOTTING #
 ###########################
 
-def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None, covered = set()):
+def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None, covered = set(), circles = None):
     """
     Given a tile dictionary, plots a list of 2D points in R^2 using matplotlib. Distinguishes between prefectures if 
     prefecture dictionary of the form returned by organize by prefecture is passed in.
@@ -26,6 +26,7 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
     color_list = ['red', 'blue', 'black', 'yellow', 'orange', 'pink', 'purple']
     sizes = [point_size for x in range(len(tile_dictionary.keys()))]
 
+    # If prefectures are given, color tiles in accordance with the prefectures
     if prefectures:
         tile_set = set()
         points = []
@@ -39,8 +40,7 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
                     if tile not in covered:
                         colors.append(color)
                     else:
-                        colors.append('black')
-
+                        colors.append('red')
                     tile_set.add(tile)
                 else:
                     continue
@@ -58,16 +58,30 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
             
     x_values = [point[0] for point in points]
     y_values = [point[1] for point in points]
+    circle_data = []
 
+    # If aps are given, highlight them. If they are given radius, add a datapoint to circle_data to draw the circle
     if aps:
-        for coords in aps.values():
+        for info in aps.values():
+            coords = info[0]
+            radius = info[1]
+            if radius > 0:
+                circle_data.append((coords, radius))
             x_values.append(coords[1])
             y_values.append(coords[0])
             colors.append('red')
             sizes.append(1)
-    
 
     plt.scatter(x_values, y_values, c = colors, s = sizes)
+
+    # Draw circles if any
+    if circle_data:
+        for circle in circle_data:
+            coords = (circle[0][1], circle[0][0])
+            radius = circle[1]
+            circle = plt.Circle(coords, radius, color='red', fill=False)
+            plt.gca().add_artist(circle)
+
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
     plt.grid(True)
@@ -139,7 +153,6 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
     plt.tight_layout()  
     plt.show()
 
-
 if __name__ == '__main__':
 
     # Load relevant data
@@ -155,15 +168,13 @@ if __name__ == '__main__':
         data_dict = pickle.load(f)
         ap_dict = data_dict['ap_dict']
 
-    tile_dictionary = dm.create_tile_dictionary(json_object)
+    tile_dict = dm.create_tile_dictionary(json_object)
+    updated_ap_dict = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
+    tiles_covered = get_tiles_covered(tile_dict, updated_ap_dict)
 
     # Visualize data in 2D
-    plot_points_2d(tile_dictionary)
-    plot_points_2d(tile_dictionary, prefectures = prefecture_tile_dict)
-    plot_points_2d(tile_dictionary, aps = ap_dict)
+    plot_points_2d(tile_dict, aps = updated_ap_dict)
 
-    total_covered = choose_aps(ap_dict, tile_dictionary, tile_pdf_dict, .4)
-    plot_points_2d(tile_dictionary, aps = ap_dict, covered = total_covered)
     # Visualize data in 3D
     # plot_points_3d(tile_dictionary)
     # plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
