@@ -9,21 +9,26 @@ import json
 from relevant_data.scraping import *
 import geopandas
 
+# Append system path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from assemblyPoints.ap import *
+from transportation.transportationObject import *
 
 ###########################
 # SUPPORT FOR 2D PLOTTING #
 ###########################
 
-def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None, covered = set(), circles = None):
+def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None, covered = set(), 
+                   circles = None, rail = False):
     """
     Given a tile dictionary, plots a list of 2D points in R^2 using matplotlib. Distinguishes between prefectures if 
     prefecture dictionary of the form returned by organize by prefecture is passed in.
     """
+    fig, ax = plt.subplots()
+
     color_list = ['red', 'blue', 'black', 'yellow', 'orange', 'pink', 'purple']
     sizes = [point_size for x in range(len(tile_dictionary.keys()))]
 
@@ -71,9 +76,9 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
             x_values.append(coords[1])
             y_values.append(coords[0])
             colors.append('red')
-            sizes.append(1)
+            sizes.append(5)
 
-    plt.scatter(x_values, y_values, c = colors, s = sizes)
+    ax.scatter(x_values, y_values, c = colors, s = sizes)
 
     # Draw circles if any
     if circle_data:
@@ -82,6 +87,12 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
             radius = circle[1]
             circle = plt.Circle(coords, radius, color='red', fill=False)
             plt.gca().add_artist(circle)
+
+    if rail == True:
+        rail_stations = gpd.read_file('./transportation/data/rstatp_jpn.shp', encoding='latin1')
+        rail_line = gpd.read_file('./transportation/data/raill_jpn.shp', encoding='latin1')
+        rail_line.plot(ax=ax, color='yellow', linewidth=.4, label='Rail Lines')
+        rail_stations.plot(ax=ax, color='black', markersize=5, label='Rail Stations')
 
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
@@ -175,13 +186,12 @@ if __name__ == '__main__':
     # Choose ap_dict at random
 
     tile_dict = dm.create_tile_dictionary(json_object)
-    radii_assignment = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
-    updated_ap_dict, percent_covered = radii_assignment[0], radii_assignment[1]
-    tiles_covered = get_tiles_covered(tile_dict, updated_ap_dict)
+    # radii_assignment = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
+    # updated_ap_dict, percent_covered = radii_assignment[0], radii_assignment[1]
+    # tiles_covered = get_tiles_covered(tile_dict, updated_ap_dict)
 
     # Visualize data in 2D
-    print(percent_covered)
-    plot_points_2d(tile_dict, aps = ap_dict)
+    plot_points_2d(tile_dict, aps = ap_dict, rail = True)
 
     # Visualize data in 3D
     # plot_points_3d(tile_dictionary)
