@@ -25,6 +25,7 @@ Dependencies:
 - math
 - pandas
 - time
+- geopandas
 
 
 

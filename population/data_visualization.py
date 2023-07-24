@@ -7,6 +7,7 @@ import data_manipulation as dm
 import pickle
 import json
 from relevant_data.scraping import *
+import geopandas
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -85,6 +86,9 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
     plt.grid(True)
+    plt.xlim(120, 155)
+    plt.ylim(27, 46)
+
     plt.show()
 
 ###########################
@@ -168,13 +172,16 @@ if __name__ == '__main__':
         data_dict = pickle.load(f)
         ap_dict = data_dict['ap_dict']
 
+    # Choose ap_dict at random
+
     tile_dict = dm.create_tile_dictionary(json_object)
     radii_assignment = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
     updated_ap_dict, percent_covered = radii_assignment[0], radii_assignment[1]
     tiles_covered = get_tiles_covered(tile_dict, updated_ap_dict)
 
     # Visualize data in 2D
-    plot_points_2d(tile_dict, aps = updated_ap_dict)
+    print(percent_covered)
+    plot_points_2d(tile_dict, aps = ap_dict)
 
     # Visualize data in 3D
     # plot_points_3d(tile_dictionary)
