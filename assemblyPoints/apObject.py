@@ -87,7 +87,7 @@ class AssemblyPoint:
             ap_coords = val[0]
             ap_rad = val[1]
             for tile, tile_coords in tile_dict.items():
-                if math.sqrt((ap_coords[1] - tile_coords[0])**2 + (ap_coords[0] - tile_coords[1])**2) < ap_rad:
+                if math.sqrt((ap_coords[0] - tile_coords[0])**2 + (ap_coords[1] - tile_coords[1])**2) < ap_rad:
                     tiles_covered.add(tile)
         return tiles_covered
     
@@ -96,10 +96,9 @@ class AssemblyPoint:
         Calculates the percent covered by the aps
         """
         total_people = sum(tile_pdf_dict.values())
-
         tiles_covered = self.get_tiles_covered(tile_dict)
-        total_tiles_covered = total_tiles_covered.union(tiles_covered)
         people_covered = sum([tile_pdf_dict[tile] for tile in tiles_covered])
+
         percent_covered = people_covered / total_people
                 
         return percent_covered

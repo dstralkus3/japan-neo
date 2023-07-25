@@ -1,5 +1,5 @@
 
-from pyvrp.stop import MaxRuntime
+from pyvrp.stop import MaxRuntime, MaxIterations
 from pyvrp import Model
 
 def create_model(G, time_windows, num_vehicles, capacity):
@@ -27,15 +27,12 @@ def create_model(G, time_windows, num_vehicles, capacity):
 
     return pyvrp_instance
 
-def solve_model(instance):
+def solve_model(instance, num_iterations):
     """
     Given an instance returned by create_model(), solves for routes
     """
-    result_object = instance.solve(MaxRuntime(5))                         
+    result_object = instance.solve(MaxIterations(num_iterations))                         
     return result_object
-    
-
-
     
 
         
