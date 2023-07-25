@@ -8,27 +8,29 @@ import pickle
 import json
 from relevant_data.scraping import *
 import geopandas
+from matplotlib.collections import LineCollection
+
 
 # Append system path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from assemblyPoints.ap import *
-from transportation.transportationObject import *
+from assemblyPoints.apObject import *
+from transportation.constructingModes import *
+from transportation.modeObject import *
 
 ###########################
 # SUPPORT FOR 2D PLOTTING #
 ###########################
 
-def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None, covered = set(), 
-                   circles = None, rail = False):
+def plot_points_2d(tile_dictionary, point_size=1, prefectures = None, aps = None, covered = set(), 
+                    bullet_train = None, sinks = None, circles = False):
     """
     Given a tile dictionary, plots a list of 2D points in R^2 using matplotlib. Distinguishes between prefectures if 
     prefecture dictionary of the form returned by organize by prefecture is passed in.
     """
     fig, ax = plt.subplots()
-
     color_list = ['red', 'blue', 'black', 'yellow', 'orange', 'pink', 'purple']
     sizes = [point_size for x in range(len(tile_dictionary.keys()))]
 
@@ -60,7 +62,7 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
             if i in covered:
                 colors.append('red')
             else:
-                colors.append('slategrey')
+                colors.append('silver')
             
     x_values = [point[0] for point in points]
     y_values = [point[1] for point in points]
@@ -68,36 +70,59 @@ def plot_points_2d(tile_dictionary, point_size=2, prefectures = None, aps = None
 
     # If aps are given, highlight them. If they are given radius, add a datapoint to circle_data to draw the circle
     if aps:
-        for info in aps.values():
+        ap_dict = aps.ap_dict
+        for info in ap_dict.values():
             coords = info[0]
             radius = info[1]
             if radius > 0:
                 circle_data.append((coords, radius))
-            x_values.append(coords[1])
-            y_values.append(coords[0])
+            x_values.append(coords[0])
+            y_values.append(coords[1])
             colors.append('red')
-            sizes.append(5)
+            sizes.append(3)
 
-    ax.scatter(x_values, y_values, c = colors, s = sizes)
-
-    # Draw circles if any
-    if circle_data:
+    # Draw circles if any. This is specified by the radii in the ap_dict
+    if circle_data and circles == True:
         for circle in circle_data:
             coords = (circle[0][1], circle[0][0])
             radius = circle[1]
             circle = plt.Circle(coords, radius, color='red', fill=False)
             plt.gca().add_artist(circle)
 
-    if rail == True:
-        rail_stations = gpd.read_file('./transportation/data/rstatp_jpn.shp', encoding='latin1')
-        rail_line = gpd.read_file('./transportation/data/raill_jpn.shp', encoding='latin1')
-        rail_line.plot(ax=ax, color='yellow', linewidth=.4, label='Rail Lines')
-        rail_stations.plot(ax=ax, color='black', markersize=5, label='Rail Stations')
+    if sinks:
+        pass
 
+    if bullet_train:
+
+        mode_dictionary = bullet_train.mode_dict
+        segments = set()
+
+        for id, info in mode_dictionary.items():
+
+            # Add node to graph
+            x_values.append(info['loc'][0])
+            y_values.append(info['loc'][1])
+            colors.append('black')
+            sizes.append(.3)
+        
+            # Add line segments
+            for neighbor in info['neighbors']:
+                new_segment = (info['loc'], mode_dictionary[neighbor]['loc'])
+                if new_segment not in segments and (new_segment[1], new_segment[0]) not in segments:
+                    segments.add(new_segment)
+        
+        lc = LineCollection(segments)
+        lc.set_color('black')
+        ax.add_collection(lc)
+
+    ax.scatter(x_values, y_values, c = colors, s = sizes)
+    width_ratio = .9  # Increase this value to elongate more
+    height_ratio = 1  # Keep this value as 1 for no change in height
+    ax.set_aspect(aspect=width_ratio / height_ratio)
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
     plt.grid(True)
-    plt.xlim(120, 155)
+    plt.xlim(127, 146.5)
     plt.ylim(27, 46)
 
     plt.show()
@@ -183,15 +208,17 @@ if __name__ == '__main__':
         data_dict = pickle.load(f)
         ap_dict = data_dict['ap_dict']
 
-    # Choose ap_dict at random
-
+    ap_object = AssemblyPoint(ap_dict)
     tile_dict = dm.create_tile_dictionary(json_object)
+    bullet_train_graph = create_rail_object()
+    bullet_train_mode = Mode(bullet_train_graph, 300)
+    contacted_aps = bullet_train_mode.get_contacted_aps(ap_object)
     # radii_assignment = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
     # updated_ap_dict, percent_covered = radii_assignment[0], radii_assignment[1]
     # tiles_covered = get_tiles_covered(tile_dict, updated_ap_dict)
 
     # Visualize data in 2D
-    plot_points_2d(tile_dict, aps = ap_dict, rail = True)
+    plot_points_2d(tile_dict, aps = contacted_aps, bullet_train = bullet_train_mode)
 
     # Visualize data in 3D
     # plot_points_3d(tile_dictionary)
