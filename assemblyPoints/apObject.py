@@ -35,7 +35,6 @@ class AssemblyPoint:
         """
         self.ap_dict = ap_dict.copy()
     
-    
     def assign_ap_radius(self, tile_dict, tile_pdf_dict):
         """
         Given a dictionary with names of aps as keys and coordinates as values, a tile_dict of the form
@@ -104,6 +103,7 @@ class AssemblyPoint:
         percent_covered = people_covered / total_people
                 
         return percent_covered
+    
 
 if __name__ == '__main__':
 

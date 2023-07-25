@@ -1,24 +1,27 @@
 
 import sys
 import os
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import data_manipulation as dm
-import pickle
-import json
-from relevant_data.scraping import *
-import geopandas
-from matplotlib.collections import LineCollection
-
 
 # Append system path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
+# Imports from packages in PIP
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import pickle
+import json
+import geopandas
+from matplotlib.collections import LineCollection
+
+# Imports from within directory
 from assemblyPoints.apObject import *
 from transportation.constructingModes import *
 from transportation.modeObject import *
+from population.relevant_data.scraping import *
+import population.data_manipulation as dm
+from sinks.sinkObject import *
 
 ###########################
 # SUPPORT FOR 2D PLOTTING #
@@ -90,7 +93,12 @@ def plot_points_2d(tile_dictionary, point_size=1, prefectures = None, aps = None
             plt.gca().add_artist(circle)
 
     if sinks:
-        pass
+        sink_dict = sinks.sink_dict
+        for coords in sink_dict.values():
+            x_values.append(coords[0])
+            y_values.append(coords[1])
+            colors.append('blue')
+            sizes.append(3)
 
     if bullet_train:
 
@@ -207,21 +215,21 @@ if __name__ == '__main__':
     with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
         data_dict = pickle.load(f)
         ap_dict = data_dict['ap_dict']
+    
+    with open('./sinks/relevant_data/pickleFiles/sink_pickle.pkl', 'rb') as f:
+        data_dict = pickle.load(f)
+        sink_dict = data_dict['sink_dict']
 
     ap_object = AssemblyPoint(ap_dict)
+    sink_object = Sinks(sink_dict)
     tile_dict = dm.create_tile_dictionary(json_object)
     bullet_train_graph = create_rail_object()
-    bullet_train_mode = Mode(bullet_train_graph, 300)
+    bullet_train_mode = Mode(bullet_train_graph, speed = 300, capacity = 500)
     contacted_aps = bullet_train_mode.get_contacted_aps(ap_object)
-    # radii_assignment = assign_ap_radius(ap_dict, tile_dict, tile_pdf_dict)
-    # updated_ap_dict, percent_covered = radii_assignment[0], radii_assignment[1]
-    # tiles_covered = get_tiles_covered(tile_dict, updated_ap_dict)
+    contacted_sinks = bullet_train_mode.get_contacted_sinks(sink_object)
+
 
     # Visualize data in 2D
-    plot_points_2d(tile_dict, aps = contacted_aps, bullet_train = bullet_train_mode)
-
-    # Visualize data in 3D
-    # plot_points_3d(tile_dictionary)
-    # plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict)
-    # plot_points_3d(tile_dictionary, prefectures=prefecture_tile_dict, tile_pdf = normalized_pdf_dict)
+    plot_points_2d(tile_dict, aps = contacted_aps, bullet_train = bullet_train_mode, sinks = contacted_sinks)
+    
     

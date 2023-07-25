@@ -1,5 +1,13 @@
 
 import json
+import os
+import sys
+
+# Append system path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
 import numpy as np
 import reverse_geocode
 import requests
@@ -10,7 +18,7 @@ from geopy.distance import geodesic
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import math
-from relevant_data.scraping import *
+from population.relevant_data.scraping import *
 
 ############################################################
 # SUPPORT FOR INITIALIZING STRUCTURE FROM GEOMETRIC OBJECT #
