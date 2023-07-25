@@ -17,7 +17,7 @@ def ap_influence(tile_dictionary, coordinates, radius):
     touches = set()
     for key,val in tile_dictionary.items():
 
-        if math.sqrt((val[0] - coordinates[1])**2 + (val[1] - coordinates[0])**2) < radius:
+        if math.sqrt((val[0] - coordinates[0])**2 + (val[1] - coordinates[1])**2) < radius:
             touches.add(key)
 
     return touches
@@ -103,7 +103,6 @@ class AssemblyPoint:
         percent_covered = people_covered / total_people
                 
         return percent_covered
-    
 
 if __name__ == '__main__':
 

@@ -26,6 +26,7 @@ Dependencies:
 - pandas
 - time
 - geopandas
+- haverstine
 
 
 

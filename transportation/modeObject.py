@@ -15,7 +15,7 @@ from sinks.sinkObject import *
 
 class Mode:
 
-    def __init__(self, mode_dictionary, speed, capacity):
+    def __init__(self, mode_dictionary, speed, capacity, num_vehicles):
         """
         Given a dictionary that contains node_id's as keys and a values as tuples with 2 elements,
         the first being coordinates and the second being a neighbor set containing other node_ids,
@@ -25,6 +25,7 @@ class Mode:
         self.mode_dict = mode_dictionary
         self.speed = speed
         self.capacity = capacity
+        self.num_vehicles = num_vehicles
     
     def get_coords(self):
         """
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     bullet_train_graph = create_rail_object()
     ap_obj = AssemblyPoint(ap_dict)
     sink_obj = Sinks(sink_dict)
-    mode = Mode(bullet_train_graph, 200, 500)
+    mode = Mode(bullet_train_graph, 200, 500, 20)
     contacted_aps = mode.get_contacted_aps(ap_obj)
     contacted_sinks = mode.get_contacted_sinks(sink_obj)
 

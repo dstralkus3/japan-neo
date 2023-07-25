@@ -284,7 +284,7 @@ if __name__ == '__main__':
     people_function = lambda x: 125
     rate_function = lambda x: 2
     num_vehicles = 7
-
+    
     # Create full graph
     graph_object = nx_graph(num_aps, num_sinks, num_other, edges)
     visualize_graph(graph_object)

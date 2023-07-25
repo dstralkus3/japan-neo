@@ -85,9 +85,10 @@ def plot_points_2d(tile_dictionary, point_size=1, prefectures = None, aps = None
             sizes.append(3)
 
     # Draw circles if any. This is specified by the radii in the ap_dict
+
     if circle_data and circles == True:
         for circle in circle_data:
-            coords = (circle[0][1], circle[0][0])
+            coords = (circle[0][0], circle[0][1])
             radius = circle[1]
             circle = plt.Circle(coords, radius, color='red', fill=False)
             plt.gca().add_artist(circle)
@@ -223,13 +224,12 @@ if __name__ == '__main__':
     ap_object = AssemblyPoint(ap_dict)
     sink_object = Sinks(sink_dict)
     tile_dict = dm.create_tile_dictionary(json_object)
-    bullet_train_graph = create_rail_object()
-    bullet_train_mode = Mode(bullet_train_graph, speed = 300, capacity = 500)
+    bullet_train_mode = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
     contacted_aps = bullet_train_mode.get_contacted_aps(ap_object)
+    contacted_aps.assign_ap_radius(tile_dict, tile_pdf_dict)
     contacted_sinks = bullet_train_mode.get_contacted_sinks(sink_object)
 
-
     # Visualize data in 2D
-    plot_points_2d(tile_dict, aps = contacted_aps, bullet_train = bullet_train_mode, sinks = contacted_sinks)
+    plot_points_2d(tile_dict, aps = contacted_aps, bullet_train = bullet_train_mode, sinks = contacted_sinks, circles = True)
     
     
