@@ -1,3 +1,0 @@
-####### FILE FOR GIVING OUTPUT OF MODEL #######
-
-

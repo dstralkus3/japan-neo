@@ -103,6 +103,7 @@ class AssemblyPoint:
                 
         return percent_covered
 
+        
 if __name__ == '__main__':
 
     # Load relevant data

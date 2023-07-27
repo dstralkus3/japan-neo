@@ -221,15 +221,18 @@ if __name__ == '__main__':
         data_dict = pickle.load(f)
         sink_dict = data_dict['sink_dict']
 
-    ap_object = AssemblyPoint(ap_dict)
-    sink_object = Sinks(sink_dict)
     tile_dict = dm.create_tile_dictionary(json_object)
+    ap_object = AssemblyPoint(ap_dict)
+    test_ap_object = AssemblyPoint({'Fukui Prefectural Stadium': ([136.18272, 36.05188], 0), 'Obihiro Athletics Stadium': ([143.14523, 42.89413], 0), 'Nagoya Dome': ([136.94739, 35.186], 0), 'Sasebo Navy Base': ([129.71534, 33.16715], 0), 'Komazawa Olympic Stadium': ([139.66364, 35.62557], 0)})
+    test_ap_object.assign_ap_radius(tile_dict, tile_pdf_dict)
+
+    sink_object = Sinks(sink_dict)
     bullet_train_mode = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
     contacted_aps = bullet_train_mode.get_contacted_aps(ap_object)
     contacted_aps.assign_ap_radius(tile_dict, tile_pdf_dict)
     contacted_sinks = bullet_train_mode.get_contacted_sinks(sink_object)
 
     # Visualize data in 2D
-    plot_points_2d(tile_dict, aps = contacted_aps, bullet_train = bullet_train_mode, sinks = contacted_sinks, circles = True)
+    plot_points_2d(tile_dict, aps = ap_object, bullet_train = bullet_train_mode, sinks = contacted_sinks, circles = True)
     
     

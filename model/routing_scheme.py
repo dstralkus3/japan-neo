@@ -130,6 +130,7 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
 
         ap_key = 'x'
         ap_name = 'y'
+
         # Find entry in ap_object
         for key, val in translate_dict.items():
             if val == i:
@@ -143,8 +144,19 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
         num_people = 0
         for tile in tiles_covered:
             num_people += tile_pdf_dict[tile]
-            
-        rate = num_people / (serviced_aps_obj.ap_dict[ap_name][1] * 100)
+
+        tiles_covered = ap_influence(tile_dict, serviced_aps_obj.ap_dict[ap_name][0], serviced_aps_obj.ap_dict[ap_name][1])
+        expected_time_for_tile = {}
+        for tile in tiles_covered:
+            coords_1 = serviced_aps_obj.ap_dict[ap_name][0][1], serviced_aps_obj.ap_dict[ap_name][0][0]
+            coords_2 = tile_dict[tile][1],  tile_dict[tile][0]
+            distance = haversine(coords_1, coords_2)
+            expected_time_for_tile[tile] = distance/120 # Assumes everyone moves at .5 km per hour on average
+
+        const = 1/sum([tile_pdf_dict[tile] for tile in tiles_covered])
+        ap_pdf_dict = {k:v for (k,v) in zip(tiles_covered, [const * tile_pdf_dict[tile] for tile in tiles_covered])}
+        expected_time = sum([ap_pdf_dict[tile] * expected_time_for_tile[tile] for tile in tiles_covered])
+        rate  = 1/expected_time
 
         people_rate_dict[i] = [num_people, rate]
 
@@ -180,8 +192,7 @@ def generate_routing_scheme(mode_obj, serviced_aps_obj, contacted_sink_obj, tile
     duplicated_complete_graph_matrix = duplicated_complete_graph[0]
     time_windows = duplicated_complete_graph[1]
     problem_instance = vrptw_solver.create_model(duplicated_complete_graph_matrix, time_windows, routing_info['num_vehicles'],
-                                                                                                routing_info['vehicle_capacity'],
-                                                                                                )
+                                                                                                routing_info['vehicle_capacity'])
     result = vrptw_solver.solve_model(problem_instance, num_iterations)
     solution = result.best
     routes = solution.get_routes()
@@ -214,3 +225,4 @@ if __name__ == '__main__':
     routing_scheme = generate_routing_scheme(mode, contacted_aps, contacted_sinks, tile_dict, tile_pdf_dict, num_iterations=300)
     routes, percent_covered = routing_scheme[0], routing_scheme[1]
     time_of_neo = max([route.duration() for route in routes])
+    print(time_of_neo, percent_covered)
