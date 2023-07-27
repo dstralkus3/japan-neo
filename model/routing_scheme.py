@@ -143,7 +143,7 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
         num_people = 0
         for tile in tiles_covered:
             num_people += tile_pdf_dict[tile]
-
+            
         rate = num_people / (serviced_aps_obj.ap_dict[ap_name][1] * 100)
 
         people_rate_dict[i] = [num_people, rate]
@@ -185,7 +185,6 @@ def generate_routing_scheme(mode_obj, serviced_aps_obj, contacted_sink_obj, tile
     result = vrptw_solver.solve_model(problem_instance, num_iterations)
     solution = result.best
     routes = solution.get_routes()
-    
 
     return routes, routing_info['percent_covered']
 
@@ -210,10 +209,8 @@ if __name__ == '__main__':
     mode = Mode(create_rail_object(), 300, 500, 10)
     contacted_aps = mode.get_contacted_aps(ap_object)
     contacted_sinks = mode.get_contacted_sinks(sink_object)
-
+    
     # Give scheme
     routing_scheme = generate_routing_scheme(mode, contacted_aps, contacted_sinks, tile_dict, tile_pdf_dict, num_iterations=300)
     routes, percent_covered = routing_scheme[0], routing_scheme[1]
     time_of_neo = max([route.duration() for route in routes])
-    
-    print(time_of_neo, percent_covered)
