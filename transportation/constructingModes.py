@@ -4,6 +4,7 @@ import math
 from matplotlib import collections  as mc
 import json
 from geopy import distance
+import csv
 
 def create_rail_object():
     """
@@ -69,6 +70,18 @@ def create_rail_object():
         del bullet_train_graph[id]
 
     return bullet_train_graph
+
+
+
+
+def create_road_object():
+
+
+    return
+
+
+
+
     
 if __name__ == '__main__':
     bullet_train_graph = create_rail_object()

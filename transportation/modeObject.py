@@ -21,7 +21,7 @@ class Mode:
         the first being coordinates and the second being a neighbor set containing other node_ids,
         constructs a Mode object
         """
-        # Want to retain dictionary for book keeping purposes
+        # Want to retain dictionary for bookkeeping purposes
         self.mode_dict = mode_dictionary
         self.speed = speed
         self.capacity = capacity
