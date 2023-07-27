@@ -76,8 +76,18 @@ def create_rail_object():
 
 def create_road_object():
 
+    #read in csv file
+    with open('./transportation/data/driving_distance_table.csv') as file:
+        csvreader = csv.reader(file)
 
-    return
+    #Reading in assembly points list
+
+
+
+    road_graph = {}
+    return road_graph
+
+
 
 
 
