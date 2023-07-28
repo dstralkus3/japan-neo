@@ -28,7 +28,7 @@ from sinks.sinkObject import *
 ###########################
 
 def plot_points_2d(tile_dictionary, point_size=1, prefectures = None, aps = None, covered = set(), 
-                    bullet_train = None, sinks = None, circles = False):
+                    bullet_train = None, road = None,sinks = None, circles = False):
     """
     Given a tile dictionary, plots a list of 2D points in R^2 using matplotlib. Distinguishes between prefectures if 
     prefecture dictionary of the form returned by organize by prefecture is passed in.
@@ -71,6 +71,43 @@ def plot_points_2d(tile_dictionary, point_size=1, prefectures = None, aps = None
     y_values = [point[1] for point in points]
     circle_data = []
 
+    if road:
+
+        road_dict = road.mode_dict
+        segments = set()
+
+        for id, info in road_dict.items():
+
+            # Add line segments
+            for neighbor in info['neighbors']:
+                neighbor = neighbor[0]
+                new_segment = (tuple(info['loc']), tuple(road_dict[neighbor]['loc']))
+                if new_segment not in segments and (new_segment[1], new_segment[0]) not in segments:
+                    segments.add(new_segment)
+
+        lc = LineCollection(segments)
+        lc.set_color('green')
+        lc.set_linewidth(.1)
+        ax.add_collection(lc)
+
+    if bullet_train:
+
+        mode_dictionary = bullet_train.mode_dict
+        segments = set()
+
+        for id, info in mode_dictionary.items():
+        
+            # Add line segments
+            for neighbor in info['neighbors']:
+                new_segment = (info['loc'], mode_dictionary[neighbor]['loc'])
+                if new_segment not in segments and (new_segment[1], new_segment[0]) not in segments:
+                    segments.add(new_segment)
+        
+        lc = LineCollection(segments)
+        lc.set_color('green')
+        lc.set_linewidth(1)
+        ax.add_collection(lc)
+
     # If aps are given, highlight them. If they are given radius, add a datapoint to circle_data to draw the circle
     if aps:
         ap_dict = aps.ap_dict
@@ -100,29 +137,8 @@ def plot_points_2d(tile_dictionary, point_size=1, prefectures = None, aps = None
             y_values.append(coords[1])
             colors.append('blue')
             sizes.append(3)
-
-    if bullet_train:
-
-        mode_dictionary = bullet_train.mode_dict
-        segments = set()
-
-        for id, info in mode_dictionary.items():
-
-            # Add node to graph
-            x_values.append(info['loc'][0])
-            y_values.append(info['loc'][1])
-            colors.append('black')
-            sizes.append(.3)
-        
-            # Add line segments
-            for neighbor in info['neighbors']:
-                new_segment = (info['loc'], mode_dictionary[neighbor]['loc'])
-                if new_segment not in segments and (new_segment[1], new_segment[0]) not in segments:
-                    segments.add(new_segment)
-        
-        lc = LineCollection(segments)
-        lc.set_color('black')
-        ax.add_collection(lc)
+    
+    
 
     ax.scatter(x_values, y_values, c = colors, s = sizes)
     width_ratio = .9  # Increase this value to elongate more
@@ -221,18 +237,36 @@ if __name__ == '__main__':
         data_dict = pickle.load(f)
         sink_dict = data_dict['sink_dict']
 
-    tile_dict = dm.create_tile_dictionary(json_object)
-    ap_object = AssemblyPoint(ap_dict)
-    test_ap_object = AssemblyPoint({'Fukui Prefectural Stadium': ([136.18272, 36.05188], 0), 'Obihiro Athletics Stadium': ([143.14523, 42.89413], 0), 'Nagoya Dome': ([136.94739, 35.186], 0), 'Sasebo Navy Base': ([129.71534, 33.16715], 0), 'Komazawa Olympic Stadium': ([139.66364, 35.62557], 0)})
-    test_ap_object.assign_ap_radius(tile_dict, tile_pdf_dict)
+    with open('./model/pickleFiles/model_pickle.pkl', 'rb') as file:
+        data_list = pickle.load(file)
+        ap_object = data_list['apChoice']
 
+    tile_dict = dm.create_tile_dictionary(json_object)
     sink_object = Sinks(sink_dict)
-    bullet_train_mode = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
-    contacted_aps = bullet_train_mode.get_contacted_aps(ap_object)
-    contacted_aps.assign_ap_radius(tile_dict, tile_pdf_dict)
-    contacted_sinks = bullet_train_mode.get_contacted_sinks(sink_object)
+    train_object = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
+    road_object = Mode(create_road_object(), speed = 10, capacity = 40, num_vehicles = 10)
+
+    rail_contacted_aps = train_object.get_contacted_aps(ap_object)
+    rail_contacted_sinks = train_object.get_contacted_sinks(sink_object)
+
+    remaining_aps = list(set(ap_object.ap_dict.keys()).difference(set(rail_contacted_aps.ap_dict.keys())))
+    remaining_ap_dict = {k:v for (k,v) in zip(remaining_aps, [ap_object.ap_dict[ap] for ap in remaining_aps])}
+    road_contacted_aps = AssemblyPoint(remaining_ap_dict)
 
     # Visualize data in 2D
-    plot_points_2d(tile_dict, aps = ap_object, bullet_train = bullet_train_mode, sinks = contacted_sinks, circles = True)
+
+    plot_points_2d(tile_dict, aps = ap_object, circles = True)
+    plot_points_2d(tile_dict, aps = ap_object, sinks = sink_object, circles = True)
+    plot_points_2d(tile_dict, aps = ap_object, bullet_train = train_object, sinks = sink_object, circles = True)
+    plot_points_2d(tile_dict, aps = ap_object, bullet_train = train_object, road = road_object, sinks = sink_object, circles = True)
+
+
+    plot_points_2d(tile_dict, aps = rail_contacted_aps, sinks = rail_contacted_sinks, bullet_train = train_object, circles = True)
+
+    road_object.only_include_aps(road_contacted_aps)
+    plot_points_2d(tile_dict, aps = road_contacted_aps, road = road_object, sinks = sink_object, circles = True)
+  
+
+    
     
     

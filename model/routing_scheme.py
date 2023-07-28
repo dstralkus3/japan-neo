@@ -22,7 +22,7 @@ from routing.solver.vrptw_solver import *
 from routing.visualization.graph_visualization import *
 
 
-def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dict, tile_pdf_dict):
+def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dict, tile_pdf_dict, roads = False):
     """
     Given a mode obj, an ap object, and a sink object where the nodes of the ap and sink objects are all in contact with
     the nodes of the mode obj, gathers info to be used to generate a routing scheme
@@ -31,7 +31,6 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
     sinks = set()
     ap_translate_dict = {}
 
-    serviced_aps_obj.assign_ap_radius(tile_dict, tile_pdf_dict)
     to_delete = set()
     for ap, info in serviced_aps_obj.ap_dict.items():
         if info[1] == 0:
@@ -72,9 +71,7 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
 
     # Add the AP's
     num_aps = 0
-
     for ap in aps:
-    
         formatted_dict[counter] = mode_obj.mode_dict[ap]
         translate_dict[ap] = counter
         counter += 1
@@ -105,20 +102,30 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
 
     # Fix neighbors
     for node, info in formatted_dict.items():
-        if len(info['neighbors']) == 1:
-            formatted_dict[node]['neighbors'] =  [translate_dict[info['neighbors'][0]]]
-        elif len(info['neighbors']) == 2:
-            formatted_dict[node]['neighbors'] =  [translate_dict[info['neighbors'][0]], translate_dict[info['neighbors'][1]]]
+        if roads == True:
+            new_neighbors = set()
+            for neighbor in info['neighbors']:
+                new_neighbors.add((translate_dict[neighbor[0]], neighbor[1]))
+            formatted_dict[node] = {'loc': info['loc'], 'neighbors': new_neighbors}
+        else:
+            if len(info['neighbors']) == 1:
+                formatted_dict[node]['neighbors'] =  [translate_dict[info['neighbors'][0]]]
+            elif len(info['neighbors']) == 2:
+                formatted_dict[node]['neighbors'] =  [translate_dict[info['neighbors'][0]], translate_dict[info['neighbors'][1]]]
 
     # Add edges
     edges = []
     for node, info in formatted_dict.items():
         neighbors = info['neighbors']
         for neighbor in neighbors:
-            coords_1 = formatted_dict[node]['loc'][1], formatted_dict[node]['loc'][0]
-            coords_2 = formatted_dict[neighbor]['loc'][1], formatted_dict[neighbor]['loc'][0]
-            dist_in_km = haversine(coords_1, coords_2)
-            time_dist = round(dist_in_km/mode_obj.speed * 60 + 10, 1)
+            if roads == True:
+                neighbor, time_dist = neighbor[0], neighbor[1]
+            else:
+                coords_1 = formatted_dict[node]['loc'][1], formatted_dict[node]['loc'][0]
+                coords_2 = formatted_dict[neighbor]['loc'][1], formatted_dict[neighbor]['loc'][0]
+                dist_in_km = haversine(coords_1, coords_2)
+                time_dist = round(dist_in_km/mode_obj.speed * 60 + 10, 1)
+
             edges.append((node, neighbor, time_dist))
             edges.append((neighbor, node, time_dist))
 
@@ -176,23 +183,26 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
         'percent_covered': percent_covered
     }
 
-def generate_routing_scheme(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dict, tile_pdf_dict, num_iterations):
+def generate_routing_scheme(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dict, tile_pdf_dict, num_iterations, roads = False):
     """
     Given a mode obj, an ap object, and a sink object where the nodes of the ap and sink objects are all in contact with
     the nodes of the mode obj, generates a routing scheme
     """
-    routing_info = gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dict, tile_pdf_dict)
+    routing_info = gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dict, tile_pdf_dict, roads)
+    
     initial_graph = nx_graph(routing_info['num_aps'], routing_info['num_sinks'], routing_info['num_others'], routing_info['edges'])
     solver_instance = create_instance_of_solver(initial_graph)
     returned_object = vrptw_instance.create_complete_graph(solver_instance, routing_info['num_aps'], routing_info['num_sinks'], routing_info['num_others'])
     complete_graph_matrix, chosen_sink_matrix = returned_object[0], returned_object[1]
     complete_graph_object = nx_complete_graph(complete_graph_matrix)
     duplicated_complete_graph = vrptw_instance.assign_time_intervals(complete_graph_matrix, routing_info['people_func'], 
-                                                                     routing_info['rate_func'], routing_info['vehicle_capacity'])
+                                                            routing_info['rate_func'], routing_info['vehicle_capacity'])
+    
     duplicated_complete_graph_matrix = duplicated_complete_graph[0]
     time_windows = duplicated_complete_graph[1]
     problem_instance = vrptw_solver.create_model(duplicated_complete_graph_matrix, time_windows, routing_info['num_vehicles'],
                                                                                                 routing_info['vehicle_capacity'])
+
     result = vrptw_solver.solve_model(problem_instance, num_iterations)
     solution = result.best
     routes = solution.get_routes()

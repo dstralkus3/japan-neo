@@ -26,7 +26,7 @@ class Mode:
         self.speed = speed
         self.capacity = capacity
         self.num_vehicles = num_vehicles
-    
+
     def get_coords(self):
         """
         Returns a list of the coordinates of the network nodes in no particular order
@@ -49,7 +49,7 @@ class Mode:
             coords = info[0]
 
             for network_coords in coords_list:
-                if math.dist(coords, network_coords) < .05:
+                if math.dist(coords, network_coords) < .15:
                     contacted_aps[ap] = (coords, info[1])
 
         return AssemblyPoint(contacted_aps)
@@ -70,6 +70,38 @@ class Mode:
 
         return Sinks(contacted_sinks)
 
+    def only_include_aps(self, ap_object):
+        """
+        ONLY FOR ROAD OBJECT.
+        Given an ap object, modifies the mode dictionary to only include vertices that have those points on them
+        """
+        to_keep = set()
+        new_mode_dict = {}
+        for key, val in self.mode_dict.items():
+            go_on = True
+            for ap in ap_object.ap_dict.values():
+                if math.dist(val['loc'], ap[0]) < .01:
+                    to_keep.add(key)
+                    break
+        
+        for index in to_keep:
+            new_mode_dict[index] = self.mode_dict[index]
+        
+        # Include sinks
+        neighbor_dict = {}
+        for k,v in new_mode_dict.items():
+            for neighbor in v['neighbors']:
+                neighbor_ix = neighbor[0]
+                included = set()
+                for neighbors in self.mode_dict[neighbor_ix]['neighbors']:
+                    if neighbor[0] in new_mode_dict:
+                        included.add(neighbor)
+                neighbor_dict[neighbor_ix] =  {'loc':self.mode_dict[neighbor_ix]['loc'], 'neighbors': included}
+
+        for ix, info in neighbor_dict.items():
+             new_mode_dict[ix] = {'loc':self.mode_dict[ix]['loc'], 'neighbors': included}
+
+        self.mode_dict = new_mode_dict 
 
 if __name__ == "__main__":
 

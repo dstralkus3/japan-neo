@@ -4,7 +4,8 @@ import math
 from matplotlib import collections  as mc
 import json
 from geopy import distance
-import csv
+import pandas as pd
+import pickle
 
 def create_rail_object():
     """
@@ -71,30 +72,75 @@ def create_rail_object():
 
     return bullet_train_graph
 
-
-
-
 def create_road_object():
 
-    #read in csv file
-    with open('./transportation/data/driving_distance_table.csv') as file:
-        csvreader = csv.reader(file)
+    with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
+        data_dict = pickle.load(f)
+        ap_dict = data_dict['ap_dict']
 
-    #Reading in assembly points list
+    with open('./sinks/relevant_data/pickleFiles/sink_pickle.pkl', 'rb') as f:
+        data_dict = pickle.load(f)
+        sink_dict = data_dict['sink_dict']
 
+    df = pd.read_csv('./transportation/data/driving_distance_table.csv')
+    holder_graph = {}
+    counter = 0
+    ap_set = set()
+    sink_set = set()
+    for row in df['Assembly Point']:
+        ap_set.add(row)
+    for row in df['Sink']:
+        sink_set.add(row)
+    
+    for ap in ap_set:
+        holder_graph[ap] = counter
+        counter += 1
+    for sink in sink_set:
+        holder_graph[sink] = counter
+        counter += 1
+    
+    neighbor_dict = {}
+    for ix in holder_graph.values():
+        neighbor_dict[ix] = set()
+    for ix, row in df.iterrows():
+        index = holder_graph[row['Assembly Point']]
+        sink_index = (holder_graph[row['Sink']])
+        travel_time = round(row['Total_TravelTime'])
+        neighbor_elt = (sink_index, travel_time)
+        neighbor_dict[index].add(neighbor_elt)
 
+    # Construct road graph
+    road_graph = {k:v for (v,k) in holder_graph.items()}
 
-    road_graph = {}
+    # Fix inconsistencies
+    for k,v in road_graph.items():
+        if v == 'Chichibunomiya Rugby':
+            road_graph[k] = 'Chichibunomiya Rugby '
+        if v == 'US Embassy':
+            road_graph[k] = 'US Embassy '
+
+    # Add initial neighbors
+    for key, neighbors in neighbor_dict.items():
+        if road_graph[key] in ap_dict:
+            road_graph[key] = {'loc': ap_dict[road_graph[key]][0], 'neighbors': neighbors}
+        else:
+            road_graph[key] = {'loc': sink_dict[road_graph[key]], 'neighbors': neighbors}
+        
+    # Transfer location data to sinks
+    for k,v in road_graph.items():
+        if type(v) == str:
+            road_graph[k] = {'loc': sink_dict[v], 'neighbors': set()}
+    
+    # Fix sink neighbors
+    for k,v in road_graph.items():
+        for neighbor in v['neighbors']:
+            road_graph[neighbor[0]]['neighbors'].add((k, neighbor[1]))
     return road_graph
 
 
-
-
-
-
-    
 if __name__ == '__main__':
-    bullet_train_graph = create_rail_object()
+    train_graph = create_rail_object()
+    road_graph = create_road_object()
     
 
 
