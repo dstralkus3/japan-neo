@@ -1,0 +1,30 @@
+Index: transportation/constructingModes.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import geopandas as gpd\nimport matplotlib.pyplot as plt\nimport math\nfrom matplotlib import collections  as mc\nimport json\nfrom geopy import distance\nimport csv\n\ndef create_rail_object():\n    \"\"\"\n    Reads from JSON file to create python object of bullet train network\n    \"\"\"\n    # Read and extract info from files\n    with open('./transportation/data/json_files/bullet_train.json') as f:\n        json_obj = json.load(f)\n\n    rail_stations = gpd.read_file('./transportation/data/rstatp_jpn.shp', encoding = 'latin1')\n    station_obj = rail_stations['geometry']\n    stations = list(zip(station_obj.x, station_obj.y))\n\n    edges = []\n    for feature in json_obj['features']:\n        edges.append(feature['geometry']['coordinates'])\n\n    rail_stations = gpd.read_file('./transportation/data/rstatp_jpn.shp', encoding = 'latin1')\n    station_obj = rail_stations['geometry']\n    stations = list(zip(station_obj.x, station_obj.y))\n    \n    # Build bullet train representation\n    bullet_train_graph = {}\n    counter = 0\n    for station in stations:\n        bullet_train_graph[counter] = {'loc': station}\n        counter += 1\n\n    # Modify edges to be in terms of node ID's\n    edge_ids = []\n    for edge in edges:\n        new_edge = ['x', 'y']\n        # Find corresponding entries\n        for k,v in bullet_train_graph.items():\n            if math.dist(v['loc'], edge[0]) < .027:\n                new_edge[0] = k\n            elif math.dist(v['loc'], edge[1]) < .027:\n                new_edge[1] = k\n            else:\n                continue\n        edge_ids.append(new_edge)\n\n    # Populate neighbors of each node\n    for edge in edge_ids:\n\n        # Support for pre node\n        if 'neighbors' not in bullet_train_graph[edge[0]]:\n            bullet_train_graph[edge[0]]['neighbors'] = [edge[1]]\n        else:\n            bullet_train_graph[edge[0]]['neighbors'].append(edge[1])\n        \n         # Support for post node\n        if 'neighbors' not in bullet_train_graph[edge[1]]:\n            bullet_train_graph[edge[1]]['neighbors'] = [edge[0]]\n        else:\n            bullet_train_graph[edge[1]]['neighbors'].append(edge[0])\n    \n    to_delete = []\n    for id, info in bullet_train_graph.items():\n        if 'neighbors' not in info:\n            to_delete.append(id)\n    for id in to_delete:\n        del bullet_train_graph[id]\n\n    return bullet_train_graph\n\n\n\n\ndef create_road_object():\n\n\n    return\n\n\n\n\n    \nif __name__ == '__main__':\n    bullet_train_graph = create_rail_object()\n    \n\n\n\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/transportation/constructingModes.py b/transportation/constructingModes.py
+--- a/transportation/constructingModes.py	(revision 8152d5a0a92c2a2a7627939f2bcb39c9e01ae21c)
++++ b/transportation/constructingModes.py	(date 1690484218253)
+@@ -76,8 +76,18 @@
+ 
+ def create_road_object():
+ 
++    #read in csv file
++    with open('./transportation/data/driving_distance_table.csv') as file:
++        csvreader = csv.reader(file)
++
++    #Reading in assembly points list
++    csv.reader()
++
++
++    road_graph = {}
++    return road_graph
+ 
+-    return
++
+ 
+ 
+ 
