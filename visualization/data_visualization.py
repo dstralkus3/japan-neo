@@ -22,6 +22,7 @@ from transportation.modeObject import *
 from population.relevant_data.scraping import *
 import population.data_manipulation as dm
 from sinks.sinkObject import *
+import population.data_manipulation as dm
 
 ###########################
 # SUPPORT FOR 2D PLOTTING #
@@ -210,11 +211,6 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
     ax.set_xlabel('Latitude')
     ax.set_ylabel('Longitude')
 
-    # Adjust the viewing limits (zoom in)
-    ax.set_xlim(min(x_values), max(x_values))
-    ax.set_ylim(min(y_values), max(y_values))
-
-
     plt.tight_layout()  
     plt.show()
 
@@ -242,29 +238,20 @@ if __name__ == '__main__':
         ap_object = data_list['apChoice']
 
     tile_dict = dm.create_tile_dictionary(json_object)
-    sink_object = Sinks(sink_dict)
-    train_object = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
-    road_object = Mode(create_road_object(), speed = 10, capacity = 40, num_vehicles = 10)
-
-    rail_contacted_aps = train_object.get_contacted_aps(ap_object)
-    rail_contacted_sinks = train_object.get_contacted_sinks(sink_object)
-
-    remaining_aps = list(set(ap_object.ap_dict.keys()).difference(set(rail_contacted_aps.ap_dict.keys())))
-    remaining_ap_dict = {k:v for (k,v) in zip(remaining_aps, [ap_object.ap_dict[ap] for ap in remaining_aps])}
-    road_contacted_aps = AssemblyPoint(remaining_ap_dict)
-
     # Visualize data in 2D
+    plot_points_2d(tile_dict, prefectures= prefecture_tile_dict)
+    plot_points_3d(tile_dict, prefectures= prefecture_tile_dict, tile_pdf= tile_pdf_dict)
 
-    plot_points_2d(tile_dict, aps = ap_object, circles = True)
-    plot_points_2d(tile_dict, aps = ap_object, sinks = sink_object, circles = True)
-    plot_points_2d(tile_dict, aps = ap_object, bullet_train = train_object, sinks = sink_object, circles = True)
-    plot_points_2d(tile_dict, aps = ap_object, bullet_train = train_object, road = road_object, sinks = sink_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, sinks = sink_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, bullet_train = train_object, sinks = sink_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, bullet_train = train_object, road = road_object, sinks = sink_object, circles = True)
 
 
-    plot_points_2d(tile_dict, aps = rail_contacted_aps, sinks = rail_contacted_sinks, bullet_train = train_object, circles = True)
+    # plot_points_2d(tile_dict, aps = rail_contacted_aps, sinks = rail_contacted_sinks, bullet_train = train_object, circles = True)
 
-    road_object.only_include_aps(road_contacted_aps)
-    plot_points_2d(tile_dict, aps = road_contacted_aps, road = road_object, sinks = sink_object, circles = True)
+    # road_object.only_include_aps(road_contacted_aps)
+    # plot_points_2d(tile_dict, aps = road_contacted_aps, road = road_object, sinks = sink_object, circles = True)
   
 
     

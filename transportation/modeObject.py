@@ -37,7 +37,7 @@ class Mode:
         
         return coords_list
     
-    def get_contacted_aps(self, ap_object):
+    def get_contacted_aps(self, ap_object, dist):
         """
         Given an AP dictionary of the form {"Name_of_ap": (coordinates, radius)}, returns another dictionary
         that contains the ap's that are able to be serviced by the mode 
@@ -49,7 +49,7 @@ class Mode:
             coords = info[0]
 
             for network_coords in coords_list:
-                if math.dist(coords, network_coords) < .15:
+                if math.dist(coords, network_coords) < dist:
                     contacted_aps[ap] = (coords, info[1])
 
         return AssemblyPoint(contacted_aps)

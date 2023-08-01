@@ -49,33 +49,49 @@ if __name__ == '__main__':
 
     tile_dict = dm.create_tile_dictionary(json_object)
     sink_object = Sinks(sink_dict)
-    rail_object = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
-    road_object = Mode(create_road_object(), speed = 10, capacity = 50, num_vehicles = 100)
+    x_vals = []
+    y_vals = []
+    dist_list = [.05, .06,.07,.08,.09,.10,.11,.12,.13,.14,.15,.16,.17,.18,.19,.20]
+    for i in range(0,16):
+        rail_object = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
+        rail_contacted_aps = rail_object.get_contacted_aps(ap_object, dist = dist_list[i])
+        rail_contacted_sinks = rail_object.get_contacted_sinks(sink_object)
+        remaining_aps = list(set(ap_object.ap_dict.keys()).difference(set(rail_contacted_aps.ap_dict.keys())))
+        remaining_ap_dict = {k:v for (k,v) in zip(remaining_aps, [ap_object.ap_dict[ap] for ap in remaining_aps])}
+        road_contacted_aps = AssemblyPoint(remaining_ap_dict)
+        road_object = Mode(create_road_object(), speed = 10, capacity = 50, num_vehicles = 50)
+        road_object.only_include_aps(road_contacted_aps)
+        rail_routing_scheme = generate_routing_scheme(rail_object, rail_contacted_aps, sink_object, tile_dict, tile_pdf_dict, num_iterations=200, roads = False)
+        rail_routes, rail_percent_covered = rail_routing_scheme[0], rail_routing_scheme[1]
+        road_routing_scheme = generate_routing_scheme(road_object, road_contacted_aps, sink_object, tile_dict, tile_pdf_dict, num_iterations=200, roads = True)
+        road_routes, road_percent_covered = road_routing_scheme[0], road_routing_scheme[1]
+        time_of_road_routing = max([route.duration() for route in road_routes])
+        time_of_rail_routing = max(route.duration() for route in rail_routes)
+        time_of_neo = max(time_of_rail_routing, time_of_road_routing)
+        x_vals.append(dist_list[i])
+        y_vals.append(time_of_neo)
 
-    rail_contacted_aps = rail_object.get_contacted_aps(ap_object)
-    rail_contacted_sinks = rail_object.get_contacted_sinks(sink_object)
+    print(x_vals, y_vals)
 
-    remaining_aps = list(set(ap_object.ap_dict.keys()).difference(set(rail_contacted_aps.ap_dict.keys())))
-    remaining_ap_dict = {k:v for (k,v) in zip(remaining_aps, [ap_object.ap_dict[ap] for ap in remaining_aps])}
-    road_contacted_aps = AssemblyPoint(remaining_ap_dict)
+    # plt.scatter(x_vals, y_vals)
+    # plt.xlabel('Number of Buses')
+    # plt.ylabel('Time of NEO')
+    # plt.title('Effect of Number of Buses on Time of NEO')
+    # plt.show()
 
-    # Visualize data in 2D
+
+
+     # Visualize data in 2D
 
     # Throws entire model onto a graph
-    plot_points_2d(tile_dict, aps = ap_object, circles = True)
-    plot_points_2d(tile_dict, aps = ap_object, sinks = sink_object, circles = True)
-    plot_points_2d(tile_dict, aps = ap_object, bullet_train = rail_object, sinks = sink_object, circles = True)
-    plot_points_2d(tile_dict, aps = ap_object, bullet_train = rail_object, road = road_object, sinks = sink_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, sinks = sink_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, bullet_train = rail_object, sinks = sink_object, circles = True)
+    # plot_points_2d(tile_dict, aps = ap_object, bullet_train = rail_object, road = road_object, sinks = sink_object, circles = True)
 
-    # Partitions the AP's between modes and plots
-    road_object.only_include_aps(road_contacted_aps)
-    plot_points_2d(tile_dict, aps = rail_contacted_aps, sinks = rail_contacted_sinks, bullet_train = rail_object, circles = True)
-    plot_points_2d(tile_dict, aps = road_contacted_aps, road = road_object, sinks = sink_object, circles = True)
+    # # Partitions the AP's between modes and plots
+    
+    # plot_points_2d(tile_dict, aps = rail_contacted_aps, sinks = rail_contacted_sinks, bullet_train = rail_object, circles = True)
+    # plot_points_2d(tile_dict, aps = road_contacted_aps, road = road_object, sinks = sink_object, circles = True)
 
     # Gives routing schemes
-    rail_routing_scheme = generate_routing_scheme(rail_object, rail_contacted_aps, rail_contacted_sinks, tile_dict, tile_pdf_dict, num_iterations=300)
-    road_routing_scheme = generate_routing_scheme(road_object, road_contacted_aps, sink_object, tile_dict, tile_pdf_dict, num_iterations=100, roads = True)
-    road_routes, percent_covered = road_routing_scheme[0], road_routing_scheme[1]
-    time_of_neo = max([route.duration() for route in road_routes])
-
-

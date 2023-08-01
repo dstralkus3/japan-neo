@@ -111,6 +111,7 @@ def gather_routing_info(mode_obj, serviced_aps_obj, contacted_sink_obj, tile_dic
             if len(info['neighbors']) == 1:
                 formatted_dict[node]['neighbors'] =  [translate_dict[info['neighbors'][0]]]
             elif len(info['neighbors']) == 2:
+
                 formatted_dict[node]['neighbors'] =  [translate_dict[info['neighbors'][0]], translate_dict[info['neighbors'][1]]]
 
     # Add edges
