@@ -216,10 +216,13 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
 
 if __name__ == '__main__':
 
-    os.chdir('../')
+    print("The Current working directory is: {0}".format(os.getcwd()))
+    os.chdir(parent_dir)
+    print("The Current working directory is: {0}".format(os.getcwd()))
+
 
     # Load relevant data
-    with open('geometry/geometries/finer_grain.json' ) as file:
+    with open('./geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)
     with open('population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as file:
         data_dict = pickle.load(file)
