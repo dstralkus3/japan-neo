@@ -216,24 +216,26 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
 
 if __name__ == '__main__':
 
+    os.chdir('../')
+
     # Load relevant data
-    with open('geometry/geometries/finer_grain.json') as file:
+    with open('geometry/geometries/finer_grain.json' ) as file:
         json_object = json.load(file)
-    with open('./population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as file:
+    with open('population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as file:
         data_dict = pickle.load(file)
         prefecture_tile_dict = data_dict['prefecture_tile_dict']
         tile_pdf_dict = data_dict['tile_pdf_dict']
         normalized_pdf_dict = data_dict['normalized_tile_pdf_dict']
 
-    with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
+    with open('assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
         data_dict = pickle.load(f)
         ap_dict = data_dict['ap_dict']
     
-    with open('./sinks/relevant_data/pickleFiles/sink_pickle.pkl', 'rb') as f:
+    with open('assemblyPoints/relevant_data/pickleFiles/sink_pickle.pkl', 'rb') as f:
         data_dict = pickle.load(f)
         sink_dict = data_dict['sink_dict']
 
-    with open('./model/pickleFiles/model_pickle.pkl', 'rb') as file:
+    with open('model/pickleFiles/model_pickle.pkl', 'rb') as file:
         data_list = pickle.load(file)
         ap_object = data_list['apChoice']
 
