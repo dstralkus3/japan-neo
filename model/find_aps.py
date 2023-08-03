@@ -33,6 +33,10 @@ def find_high_coverage_aps(ap_dict, tile_dict, tile_pdf_dict):
     return ap_obj
 
 if __name__ == '__main__':
+
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
             data_dict = pickle.load(f)
             ap_dict = data_dict['ap_dict']

@@ -25,9 +25,17 @@ from routing_scheme import *
 
 
 if __name__ == '__main__':
+    # Append system path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.append(parent_dir)
+    #print("The Current working directory is: {0}".format(os.getcwd()))
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+    #print("The Current working directory is: {0}".format(os.getcwd()))
 
     # Load relevant data
-    with open('geometry/geometries/finer_grain.json') as file:
+    with open('./geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)
         tile_dict = dm.create_tile_dictionary(json_object)
 
@@ -53,6 +61,7 @@ if __name__ == '__main__':
     y_vals = []
     dist_list = [.05, .06,.07,.08,.09,.10,.11,.12,.13,.14,.15,.16,.17,.18,.19,.20]
     for i in range(0,16):
+        print("Im here")
         rail_object = Mode(create_rail_object(), speed = 300, capacity = 500, num_vehicles=20)
         rail_contacted_aps = rail_object.get_contacted_aps(ap_object, dist = dist_list[i])
         rail_contacted_sinks = rail_object.get_contacted_sinks(sink_object)

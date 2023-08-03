@@ -1,12 +1,24 @@
 
 import json
 import numpy as np
+import os
+import sys
+
+# Append system path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 def fine_grain():
     """
     Function to generate a fine grain approximation from the rough grain. Returns a list of features in the form
     found in a geoJSON object.
     """
+
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
+
     new = []
     with open("geometry/geometries/rougher_grain.json") as f:
         json_data = json.load(f)
@@ -41,6 +53,9 @@ def fine_grain():
     return new
 
 if __name__ == '__main__':
+
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
 
     data = {"type":"FeatureCollection",
         'features': fine_grain()

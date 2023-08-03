@@ -3,10 +3,17 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import pickle
+import os
+import sys
 
 #########
 # UTILS #
 #########
+
+# Append system path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 def change_key(dict, key, new_key):
     """
@@ -71,6 +78,9 @@ def parse_scraped_prefecture_data():
     Reads from pickle to parse prefecture_city_list to create a python dictionary 
     containing relevant information
     """
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     with open('./population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as file:
         data_list = pickle.load(file)
 

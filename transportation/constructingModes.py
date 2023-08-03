@@ -6,11 +6,23 @@ import json
 from geopy import distance
 import pandas as pd
 import pickle
+import os
+import sys
+
+
+# Append system path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 def create_rail_object():
     """
     Reads from JSON file to create python object of bullet train network
     """
+
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     # Read and extract info from files
     with open('./transportation/data/json_files/bullet_train.json') as f:
         json_obj = json.load(f)
@@ -73,6 +85,9 @@ def create_rail_object():
     return bullet_train_graph
 
 def create_road_object():
+
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
 
     with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
         data_dict = pickle.load(f)

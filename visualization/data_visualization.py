@@ -216,9 +216,8 @@ def plot_points_3d(tile_dictionary, point_size = 2, prefectures = None, tile_pdf
 
 if __name__ == '__main__':
 
-    print("The Current working directory is: {0}".format(os.getcwd()))
+    # Forcing path to be parent directory
     os.chdir(parent_dir)
-    print("The Current working directory is: {0}".format(os.getcwd()))
 
 
     # Load relevant data
@@ -244,7 +243,7 @@ if __name__ == '__main__':
 
     tile_dict = dm.create_tile_dictionary(json_object)
     # Visualize data in 2D
-    plot_points_2d(tile_dict, prefectures= prefecture_tile_dict)
+    plot_points_2d(tile_dict)
     plot_points_3d(tile_dict, prefectures= prefecture_tile_dict, tile_pdf= tile_pdf_dict)
 
     # plot_points_2d(tile_dict, aps = ap_object, circles = True)

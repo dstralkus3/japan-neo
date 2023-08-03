@@ -1,7 +1,18 @@
 
 import json
+import os
+import sys
+
+# Append system path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 def rough_grain():
+
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     """
     Hard code for pruning bounding box of Japan. Can definitely be refactored for abstraction.
     """
@@ -28,6 +39,10 @@ def rough_grain():
                                                                                 retained.append(elt)
 
 if __name__ == '__main__':
+
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     data = {"type":"FeatureCollection",
         'features': rough_grain()
     }

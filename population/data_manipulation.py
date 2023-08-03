@@ -127,6 +127,9 @@ def normalizeDistribution(tile_pdf_dict):
 
 if __name__ == '__main__':
 
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     # Load relevant data
     with open('geometry/geometries/finer_grain.json') as file:
         json_object = json.load(file)

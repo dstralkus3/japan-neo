@@ -105,6 +105,9 @@ class Mode:
 
 if __name__ == "__main__":
 
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
         data_dict = pickle.load(f)
         ap_dict = data_dict['ap_dict']

@@ -3,11 +3,17 @@ import math
 import time
 import pickle
 import heapq
+import os
+import sys
 
 #########
 # UTILS #
 #########
 
+# Append system path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 def ap_influence(tile_dictionary, coordinates, radius):
     """"
     Given a tile dictionary, which contains indices as keys and lat lon as values, coordinates of the 
@@ -106,13 +112,16 @@ class AssemblyPoint:
         
 if __name__ == '__main__':
 
+    # Forcing path to be parent directory
+    os.chdir(parent_dir)
+
     # Load relevant data
-    with open('./population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as f:
+    with open('population/relevant_data/pickleFiles/pop_pickle.pkl', 'rb') as f:
         data_dict = pickle.load(f)
         tile_dict = data_dict['tile_dict']
         tile_pdf_dict = data_dict['tile_pdf_dict']
     
-    with open('./assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
+    with open('assemblyPoints/relevant_data/pickleFiles/ap_pickle.pkl', 'rb') as f:
         data_dict = pickle.load(f)
         ap_dict = data_dict['ap_dict']
     
